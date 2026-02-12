@@ -595,7 +595,7 @@ function descargarCSV(){
     let csv = "sep=;\nFecha;Turno;Operario;Lote;H_Mol_I;H_Prod_I;Z1_I;Z2_I;H_Mol_F;H_Prod_F;Z1_F;Z2_F\n";
 
     reporteActual.forEach(r => {
-        csv += r.slice(0,12).join(";") + "\n";
+        csv += r.slice(0,15).join(";") + "\n";
     });
 
     const blob = new Blob(["\ufeff" + csv], { type:"text/csv;charset=utf-8;" });
