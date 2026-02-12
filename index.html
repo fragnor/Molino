@@ -198,6 +198,24 @@ async function login() {
     }
 }
 
+    // ... dentro de la función login() ...
+if ((user === 'admin' && pass === '1234') || (excelCreds[user] && excelCreds[user].toString() === pass)) {
+    
+    document.getElementById('login-page').classList.remove('active');
+    document.getElementById('app').classList.add('active');
+
+    if (user === 'admin') {
+        renderAdmin();
+    } else if (user === 'jordi') {
+        renderAdminJordi(); // Nueva función para Jordi
+    } else {
+        renderOperario(user);
+    }
+
+} else {
+// ...
+
+    
 /* RESTO DEL CÓDIGO SIN CAMBIOS */
 
 function logout(){ location.reload(); }
