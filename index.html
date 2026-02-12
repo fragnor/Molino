@@ -1,14 +1,8 @@
 <!DOCTYPE html>
-
 <html lang="es">
-
 <head>
-
     <meta charset="UTF-8">
-
     <title>Tradebe Molino v9.5</title>
-
-
 
     <style>
         :root { 
@@ -117,7 +111,6 @@
 
         .login-card { background:white; padding:40px; border-radius:20px; width:340px; box-shadow:0 20px 40px rgba(0,0,0,0.4); }
     </style>
-
 </head>
 
 <body>
@@ -158,16 +151,15 @@
     </div>
 
 <script>
+/* --- TU SCRIPT COMPLETO (SIN MODIFICAR NADA MÁS) --- */
 
-/* --- TU SCRIPT COMPLETO (SIN MODIFICAR NADA TODAVÍA) --- */
-
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwsbM3zuSXavDW7WjdEVqNRo2kpPhyAwJiiA0IKRlel9wZeYptlFgapQPEQL9UNIKKN/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwdvukmx9B3TU9g2RAeEuGY_wfhdDmfxcpRid4R0X1E7i3m95sB_QoxRZP7Yn7PCdiH/exec";
 
 let activos = [], tareas = [], recambios = [], proveedores = [], excelCreds = {}, reporteActual = [];
+
+
 /* LOGIN */
-
 async function login() {
-
     const user = document.getElementById('u').value.toLowerCase().trim();
     const pass = document.getElementById('p').value;
 
@@ -177,7 +169,6 @@ async function login() {
     document.getElementById('load-msg').style.display = "block";
 
     try {
-
         const response = await fetch(SCRIPT_URL);
         const data = await response.json();
 
@@ -187,53 +178,38 @@ async function login() {
         proveedores = data.proveedores || [];
         excelCreds = data.credenciales;
 
-        /* 🔥 MODIFICACIÓN 1: AÑADIMOS EL USUARIO JORDI 🔥 */
-        if (
-            (user === 'admin' && pass === '1234') ||
-            (user === 'jordi' && pass === 'jordi2') ||
-            (excelCreds[user] && excelCreds[user].toString() === pass)
-        ) {
+        if ((user === 'admin' && pass === '1234') || (excelCreds[user] && excelCreds[user].toString() === pass)) {
 
             /* OCULTAR LOGIN – MOSTRAR APP */
             document.getElementById('login-page').classList.remove('active');
             document.getElementById('app').classList.add('active');
 
-            /* 🔥 MODIFICACIÓN 2: NUEVO ROL PARA JORDI 🔥 */
             if (user === 'admin') renderAdmin();
-            else if (user === 'jordi') renderJordi();
             else renderOperario(user);
 
         } else {
-
             alert("Credenciales incorrectas");
             document.getElementById('btnLogin').disabled = false;
-
         }
 
     } catch (e) {
-
         alert("Error de red");
         document.getElementById('btnLogin').disabled = false;
-
     }
 }
-
 
 /* RESTO DEL CÓDIGO SIN CAMBIOS */
 
 function logout(){ location.reload(); }
 
 function switchTab(tabId){
-
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
     event.currentTarget.classList.add('active');
-
 }
 
 function renderOperario(name){
-
     const todayISO = new Date().toISOString().split("T")[0];
 
     document.getElementById("user-tag").innerText = "👤 " + name.toUpperCase();
@@ -264,11 +240,9 @@ function renderOperario(name){
 
         <div id="tab-parte" class="tab-content active card">
             <div class="section-title">Lectura de Contadores</div>
-
             <input id="f_lote" class="full-w" placeholder="Nº LOTE / ORDEN" style="margin-bottom:15px">
 
             <div class="counters-grid">
-
                 <div>
                     <div class="input-group"><label>H. Molino I</label><input id="hmi" type="number" step="0.01"></div>
                     <div class="input-group"><label>H. Prod I</label><input id="hpi" type="number" step="0.01"></div>
@@ -282,16 +256,13 @@ function renderOperario(name){
                     <div class="input-group"><label>Z1 (kg) F</label><input id="z1f" type="number" step="0.001"></div>
                     <div class="input-group"><label>Z2 (un.) F</label><input id="z2f" type="number"></div>
                 </div>
-
             </div>
 
             <button class="btn btn-blue" onclick="enviar('parte')">ENVIAR LECTURAS</button>
-
         </div>
 
         <div id="tab-incidencias" class="tab-content card">
             <div class="section-title">Registro de Tareas</div>
-
             <table id="t-tareas">
                 <thead><tr>
                     <th>Parada</th><th>Arranque</th><th>Tarea</th><th>Activo</th><th>Obs</th><th></th>
@@ -321,7 +292,8 @@ function renderOperario(name){
     addFila();
     addRecambio();
 }
-  function addFila(){
+
+function addFila(){
     const h = genH();
     const r = document.querySelector("#t-tareas tbody").insertRow();
 
@@ -498,10 +470,10 @@ async function enviar(tipo){
     btn.innerText = original;
 }
 
+
 /* ------------------- MODO ADMIN ------------------- */
 
 function renderAdmin(){
-
     document.getElementById("user-tag").innerText = "⚙️ ADMINISTRADOR";
 
     document.getElementById("view").innerHTML = `
@@ -551,6 +523,7 @@ function renderAdmin(){
         </div>
     `;
 }
+
 async function addExt(acc, inp){
     const val = document.getElementById(inp).value;
     if (!val) return;
@@ -631,31 +604,6 @@ function descargarCSV(){
     link.href = URL.createObjectURL(blob);
     link.download = "Reporte_Tradebe.csv";
     link.click();
-}
-
-/* 🔥🔥🔥 NUEVA FUNCIÓN PARA EL USUARIO "JORDI" 🔥🔥🔥 */
-
-function renderJordi(){
-
-    document.getElementById("user-tag").innerText = "📊 JORDI (solo lectura)";
-
-    document.getElementById("view").innerHTML = `
-        <div class="card">
-            <div class="section-title">Histórico de Parte</div>
-
-            <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
-                <div><label>Desde</label><br><input type="date" id="f_ini"></div>
-                <div><label>Hasta</label><br><input type="date" id="f_fin"></div>
-
-                <button class="btn btn-blue" onclick="generarReporte()">CONSULTAR</button>
-                <button id="btnDownload" class="btn btn-green" style="display:none;" onclick="descargarCSV()">DESCARGAR EXCEL</button>
-            </div>
-
-            <div style="margin-top:20px; border:1px solid #eee; max-height:350px; overflow-y:auto;">
-                <div id="report-output"></div>
-            </div>
-        </div>
-    `;
 }
 
 </script>
