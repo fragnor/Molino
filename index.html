@@ -115,7 +115,6 @@
 
 <body>
 
-    <!-- LOGIN -->
     <div id="login-page" class="page-section active">
         <div class="login-card">
             <h2 style="margin-bottom:25px"><span style="color:var(--orange)">TRADE</span><span style="color:var(--green)">BE</span></h2>
@@ -131,7 +130,6 @@
         </div>
     </div>
 
-    <!-- APP -->
     <div id="app" class="page-section">
         <div class="header">
             <div>
@@ -151,12 +149,9 @@
     </div>
 
 <script>
-/* --- TU SCRIPT COMPLETO (SIN MODIFICAR NADA MÁS) --- */
-
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4k1zuDN7jfK3p_FrI-WB4Uly4AliAyhF201mmzMMryi8j11D2u3J0ToYcVDqqktH_/exec";
 
 let activos = [], tareas = [], recambios = [], proveedores = [], excelCreds = {}, reporteActual = [];
-
 
 /* LOGIN */
 async function login() {
@@ -178,13 +173,15 @@ async function login() {
         proveedores = data.proveedores || [];
         excelCreds = data.credenciales;
 
-        if ((user === 'admin' && pass === '1234') || (excelCreds[user] && excelCreds[user].toString() === pass)) {
+        // Se añadió la condición para el usuario jordi
+        if ((user === 'admin' && pass === '1234') || (user === 'jordi' && pass === 'jordi2') || (excelCreds[user] && excelCreds[user].toString() === pass)) {
 
             /* OCULTAR LOGIN – MOSTRAR APP */
             document.getElementById('login-page').classList.remove('active');
             document.getElementById('app').classList.add('active');
 
             if (user === 'admin') renderAdmin();
+            else if (user === 'jordi') renderJordi(); // Renderiza la vista específica de Jordi
             else renderOperario(user);
 
         } else {
@@ -198,8 +195,6 @@ async function login() {
     }
 }
     
-/* RESTO DEL CÓDIGO SIN CAMBIOS */
-
 function logout(){ location.reload(); }
 
 function switchTab(tabId){
@@ -523,6 +518,32 @@ function renderAdmin(){
         </div>
     `;
 }
+
+/* ------------------- MODO JORDI (SOLO REPORTES) ------------------- */
+
+function renderJordi(){
+    document.getElementById("user-tag").innerText = "📊 CM: JORDI";
+
+    document.getElementById("view").innerHTML = `
+        <div class="card">
+            <div class="section-title">Histórico de Parte</div>
+
+            <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+                <div><label>Desde</label><br><input type="date" id="f_ini"></div>
+                <div><label>Hasta</label><br><input type="date" id="f_fin"></div>
+
+                <button class="btn btn-blue" onclick="generarReporte()">CONSULTAR</button>
+                <button id="btnDownload" class="btn btn-green" style="display:none;" onclick="descargarCSV()">DESCARGAR EXCEL</button>
+            </div>
+
+            <div style="margin-top:20px; border:1px solid #eee; max-height:350px; overflow-y:auto;">
+                <div id="report-output"></div>
+            </div>
+        </div>
+    `;
+}
+
+/* ----------------------------------------------------------------- */
 
 async function addExt(acc, inp){
     const val = document.getElementById(inp).value;
