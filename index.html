@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Tradebe Molino v9.5</title>
+    <title>Tradebe Molino v9.6</title>
 
     <style>
         :root { 
@@ -148,7 +148,7 @@
             <div>
                 <span style="color:var(--orange); font-weight:900;">TRADE</span>
                 <span style="color:var(--green); font-weight:900;">BE</span>
-                <small style="margin-left:10px; color:#999">MOLINO v9.5</small>
+                <small style="margin-left:10px; color:#999">MOLINO v9.6</small>
             </div>
             <div id="user-tag" style="padding:5px 12px; background:#edf2f7; border-radius:20px; font-weight:bold;"></div>
             <button onclick="logout()" style="cursor:pointer; border:1px solid #ccc; padding:6px 12px; border-radius:6px;">Cerrar sesión</button>
@@ -157,8 +157,8 @@
     </div>
 
 <script>
-// ACTUALIZAR CON TU NUEVA URL SI CAMBIA AL GUARDAR EL APPSCRIPT
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyyiG3IDvnOa2kTk9uPQfH9av5o6wojiuvvpi0-rebNVeQ4ogIut_rdFg-U_C4OLNa8/exec";
+// ACTUALIZA ESTA URL SI AL GUARDAR CAMBIA
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw-tTgoFKb7GGmVm2HO-YriqnXxdNDVWKC6qO0wexz4KRnB5V0B6pXuB_B6kQLO8R6v/exec";
 
 let activos = [], tareas = [], recambios = [], proveedores = [], excelCreds = {}, reporteActual = [];
 let currentUser = "";
@@ -334,8 +334,6 @@ async function cargarHistorialProd() {
 
         let html = "";
         const labels = ["Antepenúltimo", "Penúltimo", "Último"];
-        
-        // Ajustamos las etiquetas si hay menos de 3 datos
         const offset = 3 - data.length;
 
         data.forEach((d, i) => {
@@ -394,11 +392,8 @@ async function cargarIncidenciasAyer() {
     try {
         const res = await fetch(SCRIPT_URL + "?action=getIncidenciasAyer");
         const respuesta = await res.json();
-        
-        // Manejar respuesta vacía o objeto
         const data = respuesta.datos || [];
         
-        // Ajustar título si es lunes
         if(respuesta.esLunes) {
             titulo.innerText = "📅 Incidencias Viernes + Hoy (Contexto)";
         } else {
@@ -428,19 +423,10 @@ async function cargarIncidenciasAyer() {
 
 async function borrarFila(rowId) {
     if(!confirm("¿Seguro que quieres borrar esta incidencia?")) return;
-
-    const div = document.getElementById("hoy-content");
-    div.style.opacity = "0.5";
-
+    const div = document.getElementById("hoy-content"); div.style.opacity = "0.5";
     try {
-        await fetch(SCRIPT_URL, { 
-            method: "POST", mode: "no-cors", 
-            body: JSON.stringify({ accion: "borrarIncidencia", row: rowId, user: currentUser }) 
-        });
-        
-        // Esperamos un poco y recargamos
+        await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ accion: "borrarIncidencia", row: rowId, user: currentUser }) });
         setTimeout(() => { cargarIncidenciasHoy(); div.style.opacity = "1"; }, 1500);
-        
     } catch(e) { alert("Error al borrar"); div.style.opacity = "1"; }
 }
 
@@ -476,9 +462,7 @@ function addRecambio(){
     `;
 }
 
-function handleRecambioChange(sel){
-    handleCantChange(sel.parentNode.nextElementSibling.querySelector(".r-cant"));
-}
+function handleRecambioChange(sel){ handleCantChange(sel.parentNode.nextElementSibling.querySelector(".r-cant")); }
 
 function handleCantChange(input){
     const row = input.closest("tr");
@@ -512,9 +496,7 @@ function genH(){
     return html;
 }
 
-function resetHoras(){
-    document.querySelectorAll("#t-tareas select.p, #t-tareas select.a").forEach(s => s.innerHTML = genH());
-}
+function resetHoras(){ document.querySelectorAll("#t-tareas select.p, #t-tareas select.a").forEach(s => s.innerHTML = genH()); }
 
 async function enviar(tipo){
     const btn = event.target;
@@ -536,12 +518,28 @@ async function enviar(tipo){
     }
 
     if (tipo === "incidencias") {
-        data.tareas = Array.from(document.querySelectorAll("#t-tareas tbody tr"))
-            .map(tr => ({
-                p: tr.querySelector(".p").value, a: tr.querySelector(".a").value,
+        // VALIDACIÓN DE HORAS AÑADIDA
+        const filasTareas = Array.from(document.querySelectorAll("#t-tareas tbody tr"));
+        let errorHora = false;
+        
+        data.tareas = filasTareas.map(tr => {
+            const p = tr.querySelector(".p").value;
+            const a = tr.querySelector(".a").value;
+            
+            // Si hay horas seleccionadas y la de parada es mayor que la de arranque
+            if (p && a && p > a) {
+                alert(`Error en la línea de tarea: La hora de parada (${p}) no puede ser posterior a la de arranque (${a}).`);
+                errorHora = true;
+            }
+            
+            return {
+                p: p, a: a,
                 t: tr.cells[2].querySelector("select").value, ac: tr.cells[3].querySelector("select").value,
                 o: tr.querySelector(".obs").value
-            })).filter(t => t.p !== "");
+            };
+        }).filter(t => t.p !== "");
+
+        if(errorHora) return; // Detiene el envío si hay error
     }
 
     if (tipo === "recambios") {
@@ -563,11 +561,11 @@ async function enviar(tipo){
 
         if (tipo === "parte") {
             ["f_lote","hmi","hpi","z1i","z2i","hmf","hpf","z1f","z2f"].forEach(id => document.getElementById(id).value = "");
-            setTimeout(cargarHistorialProd, 2000); // Recargar historial tras enviar
+            setTimeout(cargarHistorialProd, 2000);
         }
         if (tipo === "incidencias") {
             document.querySelector("#t-tareas tbody").innerHTML = ""; addFila();
-            setTimeout(cargarIncidenciasHoy, 2000); // Recargar tabla hoy tras enviar
+            setTimeout(cargarIncidenciasHoy, 2000);
         }
         if (tipo === "recambios") {
             document.querySelector("#t-recambios tbody").innerHTML = ""; addRecambio();
@@ -606,12 +604,11 @@ function renderJordi(){
     document.getElementById("user-tag").innerText = "📊 CM: JORDI";
     document.getElementById("view").innerHTML = `
         <div class="card">
-            <div class="section-title">Histórico de Parte</div>
+            <div class="section-title">Resumen de Producción</div>
             <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
                 <div><label>Desde</label><br><input type="date" id="f_ini"></div>
                 <div><label>Hasta</label><br><input type="date" id="f_fin"></div>
                 <button class="btn btn-blue" onclick="generarReporte()">CONSULTAR</button>
-                <button id="btnDownload" class="btn btn-green" style="display:none;" onclick="descargarCSV()">DESCARGAR EXCEL</button>
             </div>
             <div style="margin-top:20px; border:1px solid #eee; max-height:350px; overflow-y:auto;"><div id="report-output"></div></div>
         </div>
@@ -633,19 +630,73 @@ async function addOperario(){
 }
 
 async function generarReporte(){
-    const fini = document.getElementById("f_ini").value; const ffin = document.getElementById("f_fin").value; const out = document.getElementById("report-output");
+    const fini = document.getElementById("f_ini").value; 
+    const ffin = document.getElementById("f_fin").value; 
+    const out = document.getElementById("report-output");
+    
     if (!fini || !ffin) return;
-    out.innerHTML = "<div style='padding:20px; text-align:center; color:gray'>Consultando...</div>"; document.getElementById("btnDownload").style.display = "none";
+    
+    out.innerHTML = "<div style='padding:20px; text-align:center; color:gray'>Consultando...</div>"; 
+    
+    // Solo mostrar botón de descarga si NO es Jordi (Jordi no lo pidió, solo quiere ver la lista)
+    if(currentUser !== 'jordi') {
+         document.getElementById("btnDownload").style.display = "none";
+    }
+
     try {
-        const res = await fetch(SCRIPT_URL + "?action=getReport"); const dataRows = await res.json(); reporteActual = [];
-        let html = `<table style="min-width:900px;"><thead><tr><th>Fecha</th><th>Turno</th><th>Operario</th><th>Lote</th><th>H Mol I</th><th>H Prod I</th><th>Z1 I</th><th>Z2 I</th><th>H Mol F</th><th>H Prod F</th><th>Z1 F</th><th>Z2 F</th></tr></thead><tbody>`;
-        const finiD = new Date(fini); const ffinD = new Date(ffin);
-        dataRows.forEach(r => {
-            const [dd,mm,yy] = r[0].split("/"); const d = new Date(`${yy}-${mm}-${dd}`);
-            if (d >= finiD && d <= ffinD) { reporteActual.push(r); html += `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`; }
-        });
-        html += "</tbody></table>"; out.innerHTML = html;
-        if (reporteActual.length > 0) document.getElementById("btnDownload").style.display = "block";
+        const res = await fetch(SCRIPT_URL + "?action=getReport"); 
+        const dataRows = await res.json(); 
+        reporteActual = [];
+        const finiD = new Date(fini); 
+        const ffinD = new Date(ffin);
+        
+        let html = "";
+
+        // ============ VISTA JORDI ============
+        if (currentUser === 'jordi') {
+            html = `<table style="width:100%;"><thead><tr><th>Fecha</th><th>Producción</th></tr></thead><tbody>`;
+            
+            dataRows.forEach(r => {
+                const [dd,mm,yy] = r[0].split("/"); 
+                const d = new Date(`${yy}-${mm}-${dd}`);
+                
+                if (d >= finiD && d <= ffinD) {
+                    // Col H = index 7 (Z2 INI), Col L = index 11 (Z2 FIN)
+                    // Sanear los números (cambiar coma por punto, quitar puntos de miles)
+                    const parseVal = (v) => {
+                        if(typeof v === 'string') return parseFloat(v.replace(/\./g, '').replace(',', '.')) || 0;
+                        return parseFloat(v) || 0;
+                    }
+
+                    const valH = parseVal(r[7]);
+                    const valL = parseVal(r[11]);
+                    
+                    // Cálculo: (L - H) * 0.63
+                    const calculo = (valL - valH) * 0.63;
+                    const prodStr = calculo.toFixed(0) + " Toneladas";
+
+                    html += `<tr><td>${r[0]}</td><td style="color:var(--blue); font-weight:bold;">${prodStr}</td></tr>`;
+                }
+            });
+            
+        } 
+        // ============ VISTA ADMIN (COMPLETA) ============
+        else {
+            html = `<table style="min-width:900px;"><thead><tr><th>Fecha</th><th>Turno</th><th>Operario</th><th>Lote</th><th>H Mol I</th><th>H Prod I</th><th>Z1 I</th><th>Z2 I</th><th>H Mol F</th><th>H Prod F</th><th>Z1 F</th><th>Z2 F</th></tr></thead><tbody>`;
+            dataRows.forEach(r => {
+                const [dd,mm,yy] = r[0].split("/"); 
+                const d = new Date(`${yy}-${mm}-${dd}`);
+                if (d >= finiD && d <= ffinD) { 
+                    reporteActual.push(r); 
+                    html += `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`; 
+                }
+            });
+            if (reporteActual.length > 0) document.getElementById("btnDownload").style.display = "block";
+        }
+
+        html += "</tbody></table>"; 
+        out.innerHTML = html;
+        
     } catch (e) { out.innerHTML = "Error cargando datos"; }
 }
 
