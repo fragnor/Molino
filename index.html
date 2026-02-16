@@ -14,21 +14,13 @@
 
         body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--light); margin: 0; padding: 0; color: var(--dark); }
 
-        /* Secciones mostradas/ocultas */
         .page-section { display: none; }
         .page-section.active { display: block; }
 
-        /* CORRECCIÓN DEL LOGIN */
         #login-page {
-            height: 100vh; 
-            display: none;
-            align-items: center;
-            justify-content: center;
-            background: var(--dark);
+            height: 100vh; display: none; align-items: center; justify-content: center; background: var(--dark);
         }
-        #login-page.active {
-            display: flex;
-        }
+        #login-page.active { display: flex; }
 
         .header { 
             display: flex; justify-content: space-between; align-items: center; 
@@ -47,17 +39,14 @@
         .section-title { 
             font-size: 0.9em; font-weight: 800; color: var(--blue); 
             border-left: 4px solid var(--orange); padding-left: 10px;
-            margin-bottom: 20px;
-            text-transform: uppercase;
+            margin-bottom: 20px; text-transform: uppercase;
         }
 
         input, select { 
             padding: 10px; border: 1px solid #ced4da; border-radius: 6px;
             transition: border-color 0.2s; font-size: 0.95em;
         }
-
         input:focus { border-color: var(--blue); outline: none; }
-
         .full-w { width: 100%; box-sizing: border-box; }
 
         .tabs-nav { display: flex; gap: 5px; margin-bottom: -1px; overflow-x: auto; }
@@ -76,21 +65,17 @@
 
         .counters-grid { 
             display: grid; grid-template-columns: 1fr 1fr; gap: 20px; 
-            background: #f1f4f8; padding: 20px; border-radius: 10px; 
-            margin-bottom: 20px;
+            background: #f1f4f8; padding: 20px; border-radius: 10px; margin-bottom: 20px;
         }
 
         .input-group { 
             display: flex; justify-content: space-between; align-items: center; 
-            background: var(--white); padding: 8px 12px; border-radius: 6px;
-            border: 1px solid #e2e8f0;
+            background: var(--white); padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0;
         }
-
         .input-group label { font-size: 0.85em; font-weight: 600; color: #64748b; }
         .input-group input { width: 100px; border: none; font-weight: bold; color: var(--blue); font-size: 1.1em; text-align:right; }
 
         table { width: 100%; border-collapse: collapse; }
-
         th { background: #f8f9fa; color: #475569; padding: 12px; font-size: 0.8em; text-transform: uppercase; border-bottom: 2px solid var(--border); }
         td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
 
@@ -98,11 +83,11 @@
             padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; 
             font-weight: bold; display: inline-flex; justify-content: center; width:100%;
         }
-
         .btn-blue { background: var(--blue); color:white; }
         .btn-green { background: var(--green); color:white; }
         .btn-add { background: #e2e8f0; }
         .btn-del { background:#fee2e2; color:#c00; padding:5px 10px; border-radius:4px; }
+        .btn-trash { background:transparent; border:none; cursor:pointer; font-size:1.2em; }
 
         .pos-container { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
         .pos-row { display: flex; gap:5px; }
@@ -111,24 +96,31 @@
 
         .login-card { background:white; padding:40px; border-radius:20px; width:340px; box-shadow:0 20px 40px rgba(0,0,0,0.4); }
 
-        /* NUEVO ESTILO PARA LA BURBUJA DE INFO */
+        /* Estilos Burbujas */
         .bubble-info {
-            background-color: #fff9db; /* Amarillo suave */
-            border: 1px solid #ffe066;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 25px;
+            background-color: #fff9db; border: 1px solid #ffe066; border-radius: 10px;
+            padding: 15px; margin-top: 25px;
         }
-        .bubble-title {
-            color: #d48806;
-            font-weight: bold;
-            font-size: 0.9em;
-            margin-bottom: 10px;
-            display: block;
+        .bubble-blue {
+            background-color: #e3f2fd; border: 1px solid #90caf9; border-radius: 10px;
+            padding: 15px; margin-top: 25px;
         }
+        .bubble-title { color: #d48806; font-weight: bold; font-size: 0.9em; margin-bottom: 10px; display: block; }
+        .bubble-title-blue { color: #1976d2; font-weight: bold; font-size: 0.9em; margin-bottom: 10px; display: block; }
+        
         .info-table { width: 100%; font-size: 0.85em; }
         .info-table td { padding: 6px; border-bottom: 1px solid #fae39d; color: #555; }
         .info-table th { background: transparent; color: #d48806; border-bottom: 2px solid #fae39d; padding: 6px; text-align: left; }
+
+        /* Estilo Historial Prod */
+        .prod-cards { display: flex; gap: 10px; justify-content: space-between; }
+        .prod-card { 
+            background: white; flex:1; padding:10px; border-radius:8px; text-align:center; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .prod-date { font-size:0.8em; color:#777; font-weight:bold; }
+        .prod-turn { font-size:0.9em; color:#333; margin:2px 0; }
+        .prod-val { font-size:1.1em; color:var(--blue); font-weight:900; }
     </style>
 </head>
 
@@ -137,14 +129,10 @@
     <div id="login-page" class="page-section active">
         <div class="login-card">
             <h2 style="margin-bottom:25px"><span style="color:var(--orange)">TRADE</span><span style="color:var(--green)">BE</span></h2>
-
             <div style="font-size:0.8em; margin-bottom:10px; color:gray; font-weight:bold;">ACCESO DE PERSONAL</div>
-
             <input id="u" class="full-w" placeholder="Usuario" style="margin-bottom:10px">
             <input id="p" class="full-w" type="password" placeholder="Contraseña" style="margin-bottom:20px">
-
             <button id="btnLogin" class="btn btn-blue" onclick="login()">ENTRAR AL SISTEMA</button>
-
             <div id="load-msg" style="display:none; margin-top:15px; color:var(--orange); font-weight:bold;">⌛ CONECTANDO...</div>
         </div>
     </div>
@@ -156,22 +144,18 @@
                 <span style="color:var(--green); font-weight:900;">BE</span>
                 <small style="margin-left:10px; color:#999">MOLINO v9.5</small>
             </div>
-
             <div id="user-tag" style="padding:5px 12px; background:#edf2f7; border-radius:20px; font-weight:bold;"></div>
-
-            <button onclick="logout()" style="cursor:pointer; border:1px solid #ccc; padding:6px 12px; border-radius:6px;">
-                Cerrar sesión
-            </button>
+            <button onclick="logout()" style="cursor:pointer; border:1px solid #ccc; padding:6px 12px; border-radius:6px;">Cerrar sesión</button>
         </div>
-
         <div id="view" class="container"></div>
     </div>
 
 <script>
-// IMPORTANTE: Si has desplegado una nueva versión, actualiza esta URL
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx-LnKCRSSdGjVxTENXAQN0Oj3ZORqUGOW9_7zwvvzyF375gEJNKxOUeV-CMeql1XQ3/exec";
+// ACTUALIZAR SI CAMBIA
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw-tTgoFKb7GGmVm2HO-YriqnXxdNDVWKC6qO0wexz4KRnB5V0B6pXuB_B6kQLO8R6v/exec";
 
 let activos = [], tareas = [], recambios = [], proveedores = [], excelCreds = {}, reporteActual = [];
+let currentUser = "";
 
 /* LOGIN */
 async function login() {
@@ -194,8 +178,8 @@ async function login() {
         excelCreds = data.credenciales;
 
         if ((user === 'admin' && pass === '1234') || (user === 'jordi' && pass === 'jordi2') || (excelCreds[user] && excelCreds[user].toString() === pass)) {
-
-            /* OCULTAR LOGIN – MOSTRAR APP */
+            
+            currentUser = user;
             document.getElementById('login-page').classList.remove('active');
             document.getElementById('app').classList.add('active');
 
@@ -203,8 +187,9 @@ async function login() {
             else if (user === 'jordi') renderJordi();
             else {
                 renderOperario(user);
-                // Llamamos a la función para cargar incidencias de ayer
                 cargarIncidenciasAyer(); 
+                cargarIncidenciasHoy();
+                cargarHistorialProd();
             }
 
         } else {
@@ -229,7 +214,6 @@ function switchTab(tabId){
 
 function renderOperario(name){
     const todayISO = new Date().toISOString().split("T")[0];
-
     document.getElementById("user-tag").innerText = "👤 " + name.toUpperCase();
 
     document.getElementById("view").innerHTML = `
@@ -238,11 +222,9 @@ function renderOperario(name){
                 <div style="flex:1; min-width:120px;">
                     <label style="font-size:0.75em; font-weight:bold; color:#64748b;">TURNO</label><br>
                     <select id="f_turno" class="full-w" onchange="resetHoras()">
-                        <option>Mañana</option>
-                        <option>Tarde</option>
+                        <option>Mañana</option><option>Tarde</option>
                     </select>
                 </div>
-
                 <div style="flex:1; min-width:120px;">
                     <label style="font-size:0.75em; font-weight:bold; color:#64748b;">FECHA</label><br>
                     <input type="date" id="f_fecha" class="full-w" value="${todayISO}">
@@ -267,7 +249,6 @@ function renderOperario(name){
                     <div class="input-group"><label>Z1 (kg) I</label><input id="z1i" type="number" step="0.001"></div>
                     <div class="input-group"><label>Z2 (un.) I</label><input id="z2i" type="number"></div>
                 </div>
-
                 <div>
                     <div class="input-group"><label>H. Molino F</label><input id="hmf" type="number" step="0.01"></div>
                     <div class="input-group"><label>H. Prod F</label><input id="hpf" type="number" step="0.01"></div>
@@ -277,6 +258,13 @@ function renderOperario(name){
             </div>
 
             <button class="btn btn-blue" onclick="enviar('parte')">ENVIAR LECTURAS</button>
+
+            <div class="bubble-blue" id="hist-prod-container" style="display:none;">
+                <span class="bubble-title-blue">📊 Producción Reciente (Últimos Turnos)</span>
+                <div id="hist-prod-content" class="prod-cards">
+                    <i style="color:gray; font-size:0.8em; width:100%; text-align:center">Cargando datos...</i>
+                </div>
+            </div>
         </div>
 
         <div id="tab-incidencias" class="tab-content card">
@@ -291,6 +279,13 @@ function renderOperario(name){
             <button class="btn btn-add" onclick="addFila()">+ Añadir línea</button>
             <button class="btn btn-blue" style="background:var(--orange); margin-top:15px;" onclick="enviar('incidencias')">ENVIAR TAREAS</button>
             
+            <div class="bubble-blue" id="hoy-container" style="display:none; background:#e6fffa; border-color:#4fd1c5;">
+                <span class="bubble-title-blue" style="color:#285e61;">📝 Mis incidencias de hoy (Tu turno)</span>
+                <div id="hoy-content" style="max-height:200px; overflow-y:auto;">
+                     <i style="color:gray;">Cargando...</i>
+                </div>
+            </div>
+
             <div class="bubble-info" id="ayer-container" style="display:none;">
                 <span class="bubble-title">📅 Incidencias de Ayer (06:00 - 22:00)</span>
                 <div id="ayer-content" style="max-height:200px; overflow-y:auto;">
@@ -302,14 +297,10 @@ function renderOperario(name){
 
         <div id="tab-recambios-div" class="tab-content card">
             <div class="section-title">Consumo de Materiales</div>
-
             <table id="t-recambios">
-                <thead><tr>
-                    <th>Recambio</th><th>Detalles</th><th></th>
-                </tr></thead>
+                <thead><tr><th>Recambio</th><th>Detalles</th><th></th></tr></thead>
                 <tbody></tbody>
             </table>
-
             <button class="btn btn-add" onclick="addRecambio()">+ Añadir recambio</button>
             <button class="btn btn-green" style="margin-top:15px;" onclick="enviar('recambios')">REGISTRAR RECAMBIOS</button>
         </div>
@@ -319,51 +310,114 @@ function renderOperario(name){
     addRecambio();
 }
 
-async function cargarIncidenciasAyer() {
-    const contenedor = document.getElementById("ayer-container");
-    const contenido = document.getElementById("ayer-content");
-    
-    // Mostramos el contenedor cargando
-    if(contenedor) contenedor.style.display = "block";
+/* --------------- CARGA DE DATOS ASINCRONA --------------- */
+
+async function cargarHistorialProd() {
+    const cont = document.getElementById("hist-prod-container");
+    const div = document.getElementById("hist-prod-content");
+    if(cont) cont.style.display = "block";
 
     try {
-        const response = await fetch(SCRIPT_URL + "?action=getIncidenciasAyer");
-        const data = await response.json();
+        const res = await fetch(SCRIPT_URL + "?action=getUltimosPartes");
+        const data = await res.json();
 
-        if (!data || data.length === 0) {
-            if(contenido) contenido.innerHTML = "<div style='color:#b58900; font-style:italic;'>No se registraron incidencias ayer en ese horario.</div>";
+        if(!data || data.length === 0) {
+            div.innerHTML = "<small>No hay datos previos.</small>";
             return;
         }
 
-        let html = `
-            <table class="info-table">
-                <thead>
-                    <tr><th>Hora</th><th>Tarea</th><th>Activo</th><th>Obs</th></tr>
-                </thead>
-                <tbody>
-        `;
+        let html = "";
+        data.forEach(d => {
+            html += `
+                <div class="prod-card">
+                    <div class="prod-date">${d.fecha}</div>
+                    <div class="prod-turn">${d.turno}</div>
+                    <div class="prod-val">${d.ton} t</div>
+                </div>
+            `;
+        });
+        div.innerHTML = html;
 
+    } catch(e) { div.innerHTML = "Error datos"; }
+}
+
+async function cargarIncidenciasHoy() {
+    const cont = document.getElementById("hoy-container");
+    const div = document.getElementById("hoy-content");
+    if(cont) cont.style.display = "block";
+
+    try {
+        const res = await fetch(`${SCRIPT_URL}?action=getIncidenciasHoy&user=${currentUser}`);
+        const data = await res.json();
+
+        if(!data || data.length === 0) {
+            div.innerHTML = "<small style='color:#666'>Aún no has creado incidencias hoy.</small>";
+            return;
+        }
+
+        let html = `<table class="info-table" style="border-collapse:collapse">`;
         data.forEach(d => {
             html += `<tr>
-                <td style="white-space:nowrap;">${d.hora}</td>
-                <td><b>${d.tarea}</b></td>
+                <td style="width:20px"><button class="btn-trash" onclick="borrarFila('${d.id}')">🗑️</button></td>
+                <td><b>${d.hora}</b></td>
+                <td>${d.tarea}</td>
                 <td>${d.activo}</td>
                 <td><small>${d.obs}</small></td>
             </tr>`;
         });
+        html += "</table>";
+        div.innerHTML = html;
 
-        html += `</tbody></table>`;
-        if(contenido) contenido.innerHTML = html;
-
-    } catch (e) {
-        if(contenido) contenido.innerHTML = "Error cargando incidencias anteriores.";
-    }
+    } catch(e) { div.innerHTML = "Error cargando."; }
 }
+
+async function cargarIncidenciasAyer() {
+    const cont = document.getElementById("ayer-container");
+    const div = document.getElementById("ayer-content");
+    if(cont) cont.style.display = "block";
+
+    try {
+        const res = await fetch(SCRIPT_URL + "?action=getIncidenciasAyer");
+        const data = await res.json();
+
+        if (!data || data.length === 0) {
+            div.innerHTML = "<div style='color:#b58900; font-style:italic;'>Sin datos de ayer (06-22h).</div>";
+            return;
+        }
+
+        let html = `<table class="info-table"><thead><tr><th>Hora</th><th>Tarea</th><th>Activo</th><th>Obs</th></tr></thead><tbody>`;
+        data.forEach(d => {
+            html += `<tr><td style="white-space:nowrap;">${d.hora}</td><td><b>${d.tarea}</b></td><td>${d.activo}</td><td><small>${d.obs}</small></td></tr>`;
+        });
+        html += `</tbody></table>`;
+        div.innerHTML = html;
+
+    } catch (e) { div.innerHTML = "Error cargando historial."; }
+}
+
+async function borrarFila(rowId) {
+    if(!confirm("¿Seguro que quieres borrar esta incidencia?")) return;
+
+    const div = document.getElementById("hoy-content");
+    div.style.opacity = "0.5";
+
+    try {
+        await fetch(SCRIPT_URL, { 
+            method: "POST", mode: "no-cors", 
+            body: JSON.stringify({ accion: "borrarIncidencia", row: rowId, user: currentUser }) 
+        });
+        
+        // Esperamos un poco y recargamos
+        setTimeout(() => { cargarIncidenciasHoy(); div.style.opacity = "1"; }, 1500);
+        
+    } catch(e) { alert("Error al borrar"); div.style.opacity = "1"; }
+}
+
+/* --------------- FUNCIONES GENERALES --------------- */
 
 function addFila(){
     const h = genH();
     const r = document.querySelector("#t-tareas tbody").insertRow();
-
     r.innerHTML = `
         <td><select class="p full-w">${h}</select></td>
         <td><select class="a full-w">${h}</select></td>
@@ -376,7 +430,6 @@ function addFila(){
 
 function addRecambio(){
     const r = document.querySelector("#t-recambios tbody").insertRow();
-
     r.innerHTML = `
         <td>
             <select class="r-item full-w" onchange="handleRecambioChange(this)">
@@ -384,12 +437,10 @@ function addRecambio(){
                 ${recambios.map(r => `<option>${r}</option>`).join("")}
             </select>
         </td>
-
         <td>
             <input class="r-cant full-w" type="number" placeholder="Cantidad" oninput="handleCantChange(this)">
             <div class="pos-container"></div>
         </td>
-
         <td><button class="btn-del" onclick="this.parentNode.parentNode.remove()">✕</button></td>
     `;
 }
@@ -403,28 +454,14 @@ function handleCantChange(input){
     const item = row.querySelector(".r-item").value.toLowerCase();
     const container = row.querySelector(".pos-container");
     const cant = parseInt(input.value) || 0;
-
     container.innerHTML = "";
-
     if ((item.includes("placa") || item.includes("martillo")) && cant > 0) {
         for (let i = 0; i < cant; i++) {
-
-            const div = document.createElement("div");
-            div.className = "pos-row";
-
-            const pos = document.createElement("input");
-            pos.type = "number";
-            pos.className = "pos-input";
-            pos.placeholder = "Pos";
-
-            const prov = document.createElement("select");
-            prov.className = "prov-input";
-            prov.innerHTML = `<option value="">Fabricante...</option>` +
-                proveedores.map(p => `<option>${p}</option>`).join("");
-
-            div.appendChild(pos);
-            div.appendChild(prov);
-
+            const div = document.createElement("div"); div.className = "pos-row";
+            const pos = document.createElement("input"); pos.type = "number"; pos.className = "pos-input"; pos.placeholder = "Pos";
+            const prov = document.createElement("select"); prov.className = "prov-input";
+            prov.innerHTML = `<option value="">Fabricante...</option>` + proveedores.map(p => `<option>${p}</option>`).join("");
+            div.appendChild(pos); div.appendChild(prov);
             container.appendChild(div);
         }
     }
@@ -432,11 +469,8 @@ function handleCantChange(input){
 
 function genH(){
     const t = document.getElementById('f_turno').value;
-    let i = t === "Mañana" ? 6 : 14;
-    let f = t === "Mañana" ? 14 : 22;
-
+    let i = t === "Mañana" ? 6 : 14; let f = t === "Mañana" ? 14 : 22;
     let html = `<option value="">--:--</option>`;
-
     for (let h = i; h <= f; h++) {
         for (let m = 0; m < 60; m += 5) {
             if (h === f && m > 0) break;
@@ -448,257 +482,148 @@ function genH(){
 }
 
 function resetHoras(){
-    document.querySelectorAll("#t-tareas select.p, #t-tareas select.a")
-        .forEach(s => s.innerHTML = genH());
+    document.querySelectorAll("#t-tareas select.p, #t-tareas select.a").forEach(s => s.innerHTML = genH());
 }
 
 async function enviar(tipo){
     const btn = event.target;
     const original = btn.innerText;
-
     const rawFecha = document.getElementById("f_fecha").value;
     const [y,m,d] = rawFecha.split("-");
     const fecha = `${d}/${m}/${y}`;
 
     let data = {
-        fecha,
-        turno: document.getElementById("f_turno").value,
-        operario: document.getElementById("user-tag").innerText.replace("👤 ",""),
-        tipo,
-        lote: document.getElementById("f_lote")?.value || "N/A"
+        fecha, turno: document.getElementById("f_turno").value,
+        operario: currentUser, tipo, lote: document.getElementById("f_lote")?.value || "N/A"
     };
 
     if (tipo === "parte") {
-        data.h_mol_ini = hmi.value;
-        data.h_prod_ini = hpi.value;
-        data.z1_ini = z1i.value;
-        data.z2_ini = z2i.value;
-        data.h_mol_fin = hmf.value;
-        data.h_prod_fin = hpf.value;
-        data.z1_fin = z1f.value;
-        data.z2_fin = z2f.value;
+        data.h_mol_ini = hmi.value; data.h_prod_ini = hpi.value;
+        data.z1_ini = z1i.value; data.z2_ini = z2i.value;
+        data.h_mol_fin = hmf.value; data.h_prod_fin = hpf.value;
+        data.z1_fin = z1f.value; data.z2_fin = z2f.value;
     }
 
     if (tipo === "incidencias") {
         data.tareas = Array.from(document.querySelectorAll("#t-tareas tbody tr"))
             .map(tr => ({
-                p: tr.querySelector(".p").value,
-                a: tr.querySelector(".a").value,
-                t: tr.cells[2].querySelector("select").value,
-                ac: tr.cells[3].querySelector("select").value,
+                p: tr.querySelector(".p").value, a: tr.querySelector(".a").value,
+                t: tr.cells[2].querySelector("select").value, ac: tr.cells[3].querySelector("select").value,
                 o: tr.querySelector(".obs").value
-            }))
-            .filter(t => t.p !== "");
+            })).filter(t => t.p !== "");
     }
 
     if (tipo === "recambios") {
         data.recambios = Array.from(document.querySelectorAll("#t-recambios tbody tr"))
             .map(tr => ({
-                item: tr.querySelector(".r-item").value,
-                cant: tr.querySelector(".r-cant").value,
+                item: tr.querySelector(".r-item").value, cant: tr.querySelector(".r-cant").value,
                 detalles: Array.from(tr.querySelectorAll(".pos-row")).map(r => ({
-                    pos: r.querySelector(".pos-input").value,
-                    prov: r.querySelector(".prov-input").value
+                    pos: r.querySelector(".pos-input").value, prov: r.querySelector(".prov-input").value
                 }))
-            }))
-            .filter(r => r.item !== "");
+            })).filter(r => r.item !== "");
     }
 
     if (!confirm("¿Enviar datos?")) return;
-
-    btn.disabled = true;
-    btn.innerText = "Enviando...";
+    btn.disabled = true; btn.innerText = "Enviando...";
 
     try {
         await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
-
         alert("✔ Datos enviados");
 
         if (tipo === "parte") {
-            ["f_lote","hmi","hpi","z1i","z2i","hmf","hpf","z1f","z2f"]
-                .forEach(id => document.getElementById(id).value = "");
+            ["f_lote","hmi","hpi","z1i","z2i","hmf","hpf","z1f","z2f"].forEach(id => document.getElementById(id).value = "");
+            setTimeout(cargarHistorialProd, 2000); // Recargar historial tras enviar
         }
-
         if (tipo === "incidencias") {
-            document.querySelector("#t-tareas tbody").innerHTML = "";
-            addFila();
+            document.querySelector("#t-tareas tbody").innerHTML = ""; addFila();
+            setTimeout(cargarIncidenciasHoy, 2000); // Recargar tabla hoy tras enviar
         }
-
         if (tipo === "recambios") {
-            document.querySelector("#t-recambios tbody").innerHTML = "";
-            addRecambio();
+            document.querySelector("#t-recambios tbody").innerHTML = ""; addRecambio();
         }
 
-    } catch (e){
-        alert("Error enviando");
-    }
+    } catch (e){ alert("Error enviando"); }
 
-    btn.disabled = false;
-    btn.innerText = original;
+    btn.disabled = false; btn.innerText = original;
 }
-
-
-/* ------------------- MODO ADMIN ------------------- */
 
 function renderAdmin(){
     document.getElementById("user-tag").innerText = "⚙️ ADMINISTRADOR";
-
     document.getElementById("view").innerHTML = `
         <div class="card">
             <div class="section-title">Gestión de Maestros</div>
-
             <div style="display:grid; grid-template-columns:1fr 1fr 1.3fr; gap:15px;">
-                
-                <div>
-                    <label>Nueva Tarea</label>
-                    <input id="nT" class="full-w" style="margin-bottom:5px">
-                    <button class="btn btn-blue" onclick="addExt('addTarea','nT')">Añadir</button>
-                </div>
-
-                <div>
-                    <label>Nuevo Activo</label>
-                    <input id="nA" class="full-w" style="margin-bottom:5px">
-                    <button class="btn btn-blue" onclick="addExt('addActivo','nA')">Añadir</button>
-                </div>
-
-                <div>
-                    <label>Nuevo Operario</label>
-                    <div style="display:flex; gap:5px; margin-bottom:5px;">
-                        <input id="nOp" placeholder="usuario" class="full-w">
-                        <input id="pOp" placeholder="pass" class="full-w">
-                    </div>
-                    <button class="btn btn-green" onclick="addOperario()">Crear</button>
-                </div>
-
+                <div><label>Nueva Tarea</label><input id="nT" class="full-w" style="margin-bottom:5px"><button class="btn btn-blue" onclick="addExt('addTarea','nT')">Añadir</button></div>
+                <div><label>Nuevo Activo</label><input id="nA" class="full-w" style="margin-bottom:5px"><button class="btn btn-blue" onclick="addExt('addActivo','nA')">Añadir</button></div>
+                <div><label>Nuevo Operario</label><div style="display:flex; gap:5px; margin-bottom:5px;"><input id="nOp" placeholder="usuario" class="full-w"><input id="pOp" placeholder="pass" class="full-w"></div><button class="btn btn-green" onclick="addOperario()">Crear</button></div>
             </div>
         </div>
-
         <div class="card">
             <div class="section-title">Histórico de Parte</div>
-
             <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
                 <div><label>Desde</label><br><input type="date" id="f_ini"></div>
                 <div><label>Hasta</label><br><input type="date" id="f_fin"></div>
-
                 <button class="btn btn-blue" onclick="generarReporte()">CONSULTAR</button>
                 <button id="btnDownload" class="btn btn-green" style="display:none;" onclick="descargarCSV()">DESCARGAR EXCEL</button>
             </div>
-
-            <div style="margin-top:20px; border:1px solid #eee; max-height:350px; overflow-y:auto;">
-                <div id="report-output"></div>
-            </div>
+            <div style="margin-top:20px; border:1px solid #eee; max-height:350px; overflow-y:auto;"><div id="report-output"></div></div>
         </div>
     `;
 }
-
-/* ------------------- MODO JORDI (SOLO REPORTES) ------------------- */
 
 function renderJordi(){
     document.getElementById("user-tag").innerText = "📊 CM: JORDI";
-
     document.getElementById("view").innerHTML = `
         <div class="card">
             <div class="section-title">Histórico de Parte</div>
-
             <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
                 <div><label>Desde</label><br><input type="date" id="f_ini"></div>
                 <div><label>Hasta</label><br><input type="date" id="f_fin"></div>
-
                 <button class="btn btn-blue" onclick="generarReporte()">CONSULTAR</button>
                 <button id="btnDownload" class="btn btn-green" style="display:none;" onclick="descargarCSV()">DESCARGAR EXCEL</button>
             </div>
-
-            <div style="margin-top:20px; border:1px solid #eee; max-height:350px; overflow-y:auto;">
-                <div id="report-output"></div>
-            </div>
+            <div style="margin-top:20px; border:1px solid #eee; max-height:350px; overflow-y:auto;"><div id="report-output"></div></div>
         </div>
     `;
 }
 
-/* ----------------------------------------------------------------- */
-
 async function addExt(acc, inp){
-    const val = document.getElementById(inp).value;
-    if (!val) return;
-
+    const val = document.getElementById(inp).value; if (!val) return;
     fetch(SCRIPT_URL, { method:"POST", mode:"no-cors", body:JSON.stringify({accion:acc, valor:val}) });
-    alert("Guardado");
-    document.getElementById(inp).value = "";
+    alert("Guardado"); document.getElementById(inp).value = "";
 }
 
 async function addOperario(){
     const nombre = document.getElementById("nOp").value.toLowerCase().trim();
     const pass = document.getElementById("pOp").value;
-
     if (!nombre || !pass) return;
-
     fetch(SCRIPT_URL, { method:"POST", mode:"no-cors", body:JSON.stringify({accion:"addOperario", nombre, pass}) });
-
-    alert("Operario creado");
-    document.getElementById("nOp").value = "";
-    document.getElementById("pOp").value = "";
+    alert("Operario creado"); document.getElementById("nOp").value = ""; document.getElementById("pOp").value = "";
 }
 
 async function generarReporte(){
-    const fini = document.getElementById("f_ini").value;
-    const ffin = document.getElementById("f_fin").value;
-    const out = document.getElementById("report-output");
-
+    const fini = document.getElementById("f_ini").value; const ffin = document.getElementById("f_fin").value; const out = document.getElementById("report-output");
     if (!fini || !ffin) return;
-
-    out.innerHTML = "<div style='padding:20px; text-align:center; color:gray'>Consultando...</div>";
-    document.getElementById("btnDownload").style.display = "none";
-
+    out.innerHTML = "<div style='padding:20px; text-align:center; color:gray'>Consultando...</div>"; document.getElementById("btnDownload").style.display = "none";
     try {
-        const res = await fetch(SCRIPT_URL + "?action=getReport");
-        const dataRows = await res.json();
-
-        reporteActual = [];
-
-        let html = `<table style="min-width:900px;"><thead><tr>
-            <th>Fecha</th><th>Turno</th><th>Operario</th><th>Lote</th>
-            <th>H Mol I</th><th>H Prod I</th><th>Z1 I</th><th>Z2 I</th>
-            <th>H Mol F</th><th>H Prod F</th><th>Z1 F</th><th>Z2 F</th>
-        </tr></thead><tbody>`;
-
-        const finiD = new Date(fini);
-        const ffinD = new Date(ffin);
-
+        const res = await fetch(SCRIPT_URL + "?action=getReport"); const dataRows = await res.json(); reporteActual = [];
+        let html = `<table style="min-width:900px;"><thead><tr><th>Fecha</th><th>Turno</th><th>Operario</th><th>Lote</th><th>H Mol I</th><th>H Prod I</th><th>Z1 I</th><th>Z2 I</th><th>H Mol F</th><th>H Prod F</th><th>Z1 F</th><th>Z2 F</th></tr></thead><tbody>`;
+        const finiD = new Date(fini); const ffinD = new Date(ffin);
         dataRows.forEach(r => {
-            const [dd,mm,yy] = r[0].split("/");
-            const d = new Date(`${yy}-${mm}-${dd}`);
-
-            if (d >= finiD && d <= ffinD) {
-                reporteActual.push(r);
-                html += `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`;
-            }
+            const [dd,mm,yy] = r[0].split("/"); const d = new Date(`${yy}-${mm}-${dd}`);
+            if (d >= finiD && d <= ffinD) { reporteActual.push(r); html += `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`; }
         });
-
-        html += "</tbody></table>";
-
-        out.innerHTML = html;
+        html += "</tbody></table>"; out.innerHTML = html;
         if (reporteActual.length > 0) document.getElementById("btnDownload").style.display = "block";
-
-    } catch (e) {
-        out.innerHTML = "Error cargando datos";
-    }
+    } catch (e) { out.innerHTML = "Error cargando datos"; }
 }
 
 function descargarCSV(){
     let csv = "sep=;\nFecha;Turno;Operario;Lote;H_Mol_I;H_Prod_I;Z1_I;Z2_I;H_Mol_F;H_Prod_F;Z1_F;Z2_F\n";
-
-    reporteActual.forEach(r => {
-        csv += r.slice(0,15).join(";") + "\n";
-    });
-
+    reporteActual.forEach(r => { csv += r.slice(0,15).join(";") + "\n"; });
     const blob = new Blob(["\ufeff" + csv], { type:"text/csv;charset=utf-8;" });
-
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "Reporte_Tradebe.csv";
-    link.click();
+    const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Reporte_Tradebe.csv"; link.click();
 }
-
 </script>
 
 </body>
