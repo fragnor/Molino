@@ -110,6 +110,25 @@
         .prov-input { flex:1; padding:5px; border:1px solid #ccc; }
 
         .login-card { background:white; padding:40px; border-radius:20px; width:340px; box-shadow:0 20px 40px rgba(0,0,0,0.4); }
+
+        /* NUEVO ESTILO PARA LA BURBUJA DE INFO */
+        .bubble-info {
+            background-color: #fff9db; /* Amarillo suave */
+            border: 1px solid #ffe066;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 25px;
+        }
+        .bubble-title {
+            color: #d48806;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .info-table { width: 100%; font-size: 0.85em; }
+        .info-table td { padding: 6px; border-bottom: 1px solid #fae39d; color: #555; }
+        .info-table th { background: transparent; color: #d48806; border-bottom: 2px solid #fae39d; padding: 6px; text-align: left; }
     </style>
 </head>
 
@@ -149,7 +168,8 @@
     </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4k1zuDN7jfK3p_FrI-WB4Uly4AliAyhF201mmzMMryi8j11D2u3J0ToYcVDqqktH_/exec";
+// IMPORTANTE: Si has desplegado una nueva versión, actualiza esta URL
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx-LnKCRSSdGjVxTENXAQN0Oj3ZORqUGOW9_7zwvvzyF375gEJNKxOUeV-CMeql1XQ3/exec";
 
 let activos = [], tareas = [], recambios = [], proveedores = [], excelCreds = {}, reporteActual = [];
 
@@ -173,7 +193,6 @@ async function login() {
         proveedores = data.proveedores || [];
         excelCreds = data.credenciales;
 
-        // Se añadió la condición para el usuario jordi
         if ((user === 'admin' && pass === '1234') || (user === 'jordi' && pass === 'jordi2') || (excelCreds[user] && excelCreds[user].toString() === pass)) {
 
             /* OCULTAR LOGIN – MOSTRAR APP */
@@ -181,8 +200,12 @@ async function login() {
             document.getElementById('app').classList.add('active');
 
             if (user === 'admin') renderAdmin();
-            else if (user === 'jordi') renderJordi(); // Renderiza la vista específica de Jordi
-            else renderOperario(user);
+            else if (user === 'jordi') renderJordi();
+            else {
+                renderOperario(user);
+                // Llamamos a la función para cargar incidencias de ayer
+                cargarIncidenciasAyer(); 
+            }
 
         } else {
             alert("Credenciales incorrectas");
@@ -267,6 +290,14 @@ function renderOperario(name){
 
             <button class="btn btn-add" onclick="addFila()">+ Añadir línea</button>
             <button class="btn btn-blue" style="background:var(--orange); margin-top:15px;" onclick="enviar('incidencias')">ENVIAR TAREAS</button>
+            
+            <div class="bubble-info" id="ayer-container" style="display:none;">
+                <span class="bubble-title">📅 Incidencias de Ayer (06:00 - 22:00)</span>
+                <div id="ayer-content" style="max-height:200px; overflow-y:auto;">
+                    <i style="color:gray; font-size:0.9em;">Cargando historial...</i>
+                </div>
+            </div>
+
         </div>
 
         <div id="tab-recambios-div" class="tab-content card">
@@ -286,6 +317,47 @@ function renderOperario(name){
 
     addFila();
     addRecambio();
+}
+
+async function cargarIncidenciasAyer() {
+    const contenedor = document.getElementById("ayer-container");
+    const contenido = document.getElementById("ayer-content");
+    
+    // Mostramos el contenedor cargando
+    if(contenedor) contenedor.style.display = "block";
+
+    try {
+        const response = await fetch(SCRIPT_URL + "?action=getIncidenciasAyer");
+        const data = await response.json();
+
+        if (!data || data.length === 0) {
+            if(contenido) contenido.innerHTML = "<div style='color:#b58900; font-style:italic;'>No se registraron incidencias ayer en ese horario.</div>";
+            return;
+        }
+
+        let html = `
+            <table class="info-table">
+                <thead>
+                    <tr><th>Hora</th><th>Tarea</th><th>Activo</th><th>Obs</th></tr>
+                </thead>
+                <tbody>
+        `;
+
+        data.forEach(d => {
+            html += `<tr>
+                <td style="white-space:nowrap;">${d.hora}</td>
+                <td><b>${d.tarea}</b></td>
+                <td>${d.activo}</td>
+                <td><small>${d.obs}</small></td>
+            </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        if(contenido) contenido.innerHTML = html;
+
+    } catch (e) {
+        if(contenido) contenido.innerHTML = "Error cargando incidencias anteriores.";
+    }
 }
 
 function addFila(){
