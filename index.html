@@ -116,11 +116,17 @@
         .prod-cards { display: flex; gap: 10px; justify-content: space-between; }
         .prod-card { 
             background: white; flex:1; padding:10px; border-radius:8px; text-align:center; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative;
         }
         .prod-date { font-size:0.8em; color:#777; font-weight:bold; }
         .prod-turn { font-size:0.9em; color:#333; margin:2px 0; }
         .prod-val { font-size:1.1em; color:var(--blue); font-weight:900; }
+        .prod-tag { 
+            font-size: 0.65em; text-transform: uppercase; letter-spacing: 0.5px;
+            background: #edf2f7; color: #718096; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;
+        }
+        .prod-card:last-child { border: 2px solid var(--green); }
+        .prod-card:last-child .prod-tag { background: var(--green); color: white; }
     </style>
 </head>
 
@@ -151,8 +157,8 @@
     </div>
 
 <script>
-// ACTUALIZAR SI CAMBIA
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw-tTgoFKb7GGmVm2HO-YriqnXxdNDVWKC6qO0wexz4KRnB5V0B6pXuB_B6kQLO8R6v/exec";
+// ACTUALIZAR CON TU NUEVA URL SI CAMBIA AL GUARDAR EL APPSCRIPT
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyyiG3IDvnOa2kTk9uPQfH9av5o6wojiuvvpi0-rebNVeQ4ogIut_rdFg-U_C4OLNa8/exec";
 
 let activos = [], tareas = [], recambios = [], proveedores = [], excelCreds = {}, reporteActual = [];
 let currentUser = "";
@@ -260,7 +266,7 @@ function renderOperario(name){
             <button class="btn btn-blue" onclick="enviar('parte')">ENVIAR LECTURAS</button>
 
             <div class="bubble-blue" id="hist-prod-container" style="display:none;">
-                <span class="bubble-title-blue">📊 Producción Reciente (Últimos Turnos)</span>
+                <span class="bubble-title-blue">📊 Producción Reciente</span>
                 <div id="hist-prod-content" class="prod-cards">
                     <i style="color:gray; font-size:0.8em; width:100%; text-align:center">Cargando datos...</i>
                 </div>
@@ -280,14 +286,14 @@ function renderOperario(name){
             <button class="btn btn-blue" style="background:var(--orange); margin-top:15px;" onclick="enviar('incidencias')">ENVIAR TAREAS</button>
             
             <div class="bubble-blue" id="hoy-container" style="display:none; background:#e6fffa; border-color:#4fd1c5;">
-                <span class="bubble-title-blue" style="color:#285e61;">📝 Mis incidencias de hoy (Tu turno)</span>
+                <span class="bubble-title-blue" style="color:#285e61;">📝 Mis incidencias de hoy</span>
                 <div id="hoy-content" style="max-height:200px; overflow-y:auto;">
                      <i style="color:gray;">Cargando...</i>
                 </div>
             </div>
 
             <div class="bubble-info" id="ayer-container" style="display:none;">
-                <span class="bubble-title">📅 Incidencias de Ayer (06:00 - 22:00)</span>
+                <span id="titulo-ayer" class="bubble-title">📅 Incidencias Anteriores</span>
                 <div id="ayer-content" style="max-height:200px; overflow-y:auto;">
                     <i style="color:gray; font-size:0.9em;">Cargando historial...</i>
                 </div>
@@ -327,9 +333,16 @@ async function cargarHistorialProd() {
         }
 
         let html = "";
-        data.forEach(d => {
+        const labels = ["Antepenúltimo", "Penúltimo", "Último"];
+        
+        // Ajustamos las etiquetas si hay menos de 3 datos
+        const offset = 3 - data.length;
+
+        data.forEach((d, i) => {
+            let label = labels[i + offset] || "";
             html += `
                 <div class="prod-card">
+                    <div class="prod-tag">${label}</div>
                     <div class="prod-date">${d.fecha}</div>
                     <div class="prod-turn">${d.turno}</div>
                     <div class="prod-val">${d.ton} t</div>
@@ -374,20 +387,38 @@ async function cargarIncidenciasHoy() {
 async function cargarIncidenciasAyer() {
     const cont = document.getElementById("ayer-container");
     const div = document.getElementById("ayer-content");
+    const titulo = document.getElementById("titulo-ayer");
+    
     if(cont) cont.style.display = "block";
 
     try {
         const res = await fetch(SCRIPT_URL + "?action=getIncidenciasAyer");
-        const data = await res.json();
+        const respuesta = await res.json();
+        
+        // Manejar respuesta vacía o objeto
+        const data = respuesta.datos || [];
+        
+        // Ajustar título si es lunes
+        if(respuesta.esLunes) {
+            titulo.innerText = "📅 Incidencias Viernes + Hoy (Contexto)";
+        } else {
+            titulo.innerText = "📅 Incidencias de Ayer";
+        }
 
         if (!data || data.length === 0) {
-            div.innerHTML = "<div style='color:#b58900; font-style:italic;'>Sin datos de ayer (06-22h).</div>";
+            div.innerHTML = "<div style='color:#b58900; font-style:italic;'>Sin datos recientes.</div>";
             return;
         }
 
-        let html = `<table class="info-table"><thead><tr><th>Hora</th><th>Tarea</th><th>Activo</th><th>Obs</th></tr></thead><tbody>`;
+        let html = `<table class="info-table"><thead><tr><th>Fecha</th><th>Hora</th><th>Tarea</th><th>Activo</th><th>Obs</th></tr></thead><tbody>`;
         data.forEach(d => {
-            html += `<tr><td style="white-space:nowrap;">${d.hora}</td><td><b>${d.tarea}</b></td><td>${d.activo}</td><td><small>${d.obs}</small></td></tr>`;
+            html += `<tr>
+                <td style="font-size:0.85em; color:#888;">${d.fecha}</td>
+                <td style="white-space:nowrap;">${d.hora}</td>
+                <td><b>${d.tarea}</b></td>
+                <td>${d.activo}</td>
+                <td><small>${d.obs}</small></td>
+            </tr>`;
         });
         html += `</tbody></table>`;
         div.innerHTML = html;
