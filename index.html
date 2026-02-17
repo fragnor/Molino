@@ -2,14 +2,13 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Tradebe Molino v10.0</title>
-
+    <title>Tradebe Molino v11.5</title>
     <style>
         :root { 
             --blue: #0056b3; --green: #89b434; --orange: #e87e04; 
             --light: #f8f9fa; --dark: #2c3e50; --border: #dee2e6;
             --white: #ffffff; --shadow: rgba(0,0,0,0.08);
-            --red: #dc3545;
+            --red: #dc3545; --danger-bg: #fff5f5; --danger-border: #feb2b2;
         }
 
         body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--light); margin: 0; padding: 0; color: var(--dark); }
@@ -42,23 +41,24 @@
             margin-bottom: 20px; text-transform: uppercase;
         }
 
-        input, select { 
+        input, select, textarea { 
             padding: 10px; border: 1px solid #ced4da; border-radius: 6px;
-            transition: border-color 0.2s; font-size: 0.95em;
+            transition: border-color 0.2s; font-size: 0.95em; width: 100%; box-sizing: border-box;
         }
-        input:focus { border-color: var(--blue); outline: none; }
-        .full-w { width: 100%; box-sizing: border-box; }
-
+        input:focus, select:focus, textarea:focus { border-color: var(--blue); outline: none; }
+        
         .tabs-nav { display: flex; gap: 5px; margin-bottom: -1px; overflow-x: auto; }
         .tab-btn { 
             padding: 12px 25px; background: #e2e8f0; border: 1px solid var(--border); 
             border-bottom: none; border-radius: 8px 8px 0 0; cursor: pointer; 
-            font-weight: bold; color: #64748b;
+            font-weight: bold; color: #64748b; white-space: nowrap;
         }
         .tab-btn.active { 
             background: var(--white); color: var(--blue); 
             border-top: 3px solid var(--blue); padding-bottom: 13px;
         }
+        .tab-btn.danger { color: #c53030; }
+        .tab-btn.danger.active { border-top-color: #c53030; color: #c53030; }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -85,8 +85,9 @@
         }
         .btn-blue { background: var(--blue); color:white; }
         .btn-green { background: var(--green); color:white; }
+        .btn-red { background: var(--red); color:white; }
         .btn-add { background: #e2e8f0; }
-        .btn-del { background:#fee2e2; color:#c00; padding:5px 10px; border-radius:4px; }
+        .btn-del { background:#fee2e2; color:#c00; padding:5px 10px; border-radius:4px; width:auto; }
         .btn-trash { background:transparent; border:none; cursor:pointer; font-size:1.2em; }
 
         .pos-container { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
@@ -136,8 +137,8 @@
         <div class="login-card">
             <h2 style="margin-bottom:25px"><span style="color:var(--orange)">TRADE</span><span style="color:var(--green)">BE</span></h2>
             <div style="font-size:0.8em; margin-bottom:10px; color:gray; font-weight:bold;">ACCESO DE PERSONAL</div>
-            <input id="u" class="full-w" placeholder="Usuario" style="margin-bottom:10px">
-            <input id="p" class="full-w" type="password" placeholder="Contraseña" style="margin-bottom:20px">
+            <input id="u" placeholder="Usuario" style="margin-bottom:10px">
+            <input id="p" type="password" placeholder="Contraseña" style="margin-bottom:20px">
             <button id="btnLogin" class="btn btn-blue" onclick="login()">ENTRAR AL SISTEMA</button>
             <div id="load-msg" style="display:none; margin-top:15px; color:var(--orange); font-weight:bold;">⌛ CONECTANDO...</div>
         </div>
@@ -148,19 +149,21 @@
             <div>
                 <span style="color:var(--orange); font-weight:900;">TRADE</span>
                 <span style="color:var(--green); font-weight:900;">BE</span>
-                <small style="margin-left:10px; color:#999">MOLINO v10.0</small>
+                <small style="margin-left:10px; color:#999">MOLINO v11.5</small>
             </div>
             <div id="user-tag" style="padding:5px 12px; background:#edf2f7; border-radius:20px; font-weight:bold;"></div>
-            <button onclick="logout()" style="cursor:pointer; border:1px solid #ccc; padding:6px 12px; border-radius:6px;">Cerrar sesión</button>
+            <button onclick="logout()" style="cursor:pointer; border:1px solid #ccc; padding:6px 12px; border-radius:6px; background:white;">Cerrar sesión</button>
         </div>
         <div id="view" class="container"></div>
     </div>
 
 <script>
 // ACTUALIZA ESTA URL SI CAMBIA
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwsN_rS4rnGggaaDdP28T4H43p9OPhsDX4YbyA021HT5sMqFxRFePXrc-6L060Tf1M/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyQbudGydFtf6HjYygUIb13pp4MaGpPsTAi1AkJjIXuUjIrDoYWsB_IW_I_jNWYT76S/exec";
 
-let activos = [], tareas = [], recambios = [], proveedores = [], excelCreds = {}, reporteActual = [];
+let activos = [], tareas = [], recambios = [], proveedores = [];
+let tiposExplosion = [], nivelesEstallido = [], nivelesFuego = [];
+let excelCreds = {}, reporteActual = [];
 let currentUser = "";
 
 /* LOGIN */
@@ -181,6 +184,12 @@ async function login() {
         tareas = data.tareas;
         recambios = data.recambios || [];
         proveedores = data.proveedores || [];
+        
+        // Asignaciones desde Config
+        tiposExplosion = data.tiposExplosion || [];
+        nivelesEstallido = data.nivelesEstallido || [];
+        nivelesFuego = data.nivelesFuego || [];
+        
         excelCreds = data.credenciales;
 
         if ((user === 'admin' && pass === '1234') || (user === 'jordi' && pass === 'jordi2') || (excelCreds[user] && excelCreds[user].toString() === pass)) {
@@ -220,6 +229,16 @@ function switchTab(tabId){
 
 function renderOperario(name){
     const todayISO = new Date().toISOString().split("T")[0];
+    
+    // Lógica Automática de Turno
+    const currentHour = new Date().getHours();
+    let turnoAuto = "Mañana";
+    if (currentHour >= 14 && currentHour < 22) {
+        turnoAuto = "Tarde";
+    } else if (currentHour >= 22 || currentHour < 6) {
+        turnoAuto = "Tarde"; 
+    }
+
     document.getElementById("user-tag").innerText = "👤 " + name.toUpperCase();
 
     document.getElementById("view").innerHTML = `
@@ -227,13 +246,14 @@ function renderOperario(name){
             <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
                 <div style="flex:1; min-width:120px;">
                     <label style="font-size:0.75em; font-weight:bold; color:#64748b;">TURNO</label><br>
-                    <select id="f_turno" class="full-w" onchange="resetHoras()">
-                        <option>Mañana</option><option>Tarde</option>
+                    <select id="f_turno" onchange="resetHoras()">
+                        <option ${turnoAuto === 'Mañana' ? 'selected' : ''}>Mañana</option>
+                        <option ${turnoAuto === 'Tarde' ? 'selected' : ''}>Tarde</option>
                     </select>
                 </div>
                 <div style="flex:1; min-width:120px;">
                     <label style="font-size:0.75em; font-weight:bold; color:#64748b;">FECHA</label><br>
-                    <input type="date" id="f_fecha" class="full-w" value="${todayISO}">
+                    <input type="date" id="f_fecha" value="${todayISO}">
                 </div>
             </div>
         </div>
@@ -242,11 +262,12 @@ function renderOperario(name){
             <button class="tab-btn active" onclick="switchTab('tab-parte')">PARTE DE TRABAJO</button>
             <button class="tab-btn" onclick="switchTab('tab-incidencias')">INCIDENCIAS</button>
             <button class="tab-btn" onclick="switchTab('tab-recambios-div')">RECAMBIOS</button>
+            <button class="tab-btn danger" onclick="switchTab('tab-explosiones')">💥 EXPLOSIONES</button>
         </div>
 
         <div id="tab-parte" class="tab-content active card">
             <div class="section-title">Datos Fin de Turno</div>
-            <input id="f_lote" class="full-w" placeholder="Nº LOTE / ORDEN" style="margin-bottom:15px">
+            <input id="f_lote" placeholder="Nº LOTE / ORDEN" style="margin-bottom:15px">
 
             <div class="counters-grid">
                 <div class="input-group">
@@ -309,6 +330,60 @@ function renderOperario(name){
             </table>
             <button class="btn btn-add" onclick="addRecambio()">+ Añadir recambio</button>
             <button class="btn btn-green" style="margin-top:15px;" onclick="enviar('recambios')">REGISTRAR RECAMBIOS</button>
+        </div>
+
+        <div id="tab-explosiones" class="tab-content card" style="border-color:var(--danger-border); background:var(--danger-bg);">
+            <div class="section-title" style="color:var(--red); border-color:var(--red);">⚠️ Registro de Incidente (Explosión)</div>
+            
+            <label style="font-weight:bold; color:#742a2a">Material introducido</label>
+            <input id="exp_material" placeholder="Descripción del material" style="margin-bottom:15px;">
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                 <div>
+                    <label style="font-weight:bold; color:#742a2a">Tipo de Explosión</label>
+                    <select id="exp_tipo">
+                        <option value="">-- Seleccionar --</option>
+                        ${tiposExplosion.map(t => `<option>${t}</option>`).join("")}
+                    </select>
+                 </div>
+                 <div>
+                    <label style="font-weight:bold; color:#742a2a">Origen</label>
+                    <input id="exp_origen" placeholder="Lugar/Origen">
+                 </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px; margin-bottom:15px;">
+                <div>
+                    <label style="font-weight:bold; color:#742a2a">Estallido</label>
+                    <select id="exp_estallido">
+                        <option value="">-- Selec --</option>
+                        ${nivelesEstallido.map(n => `<option>${n}</option>`).join("")}
+                    </select>
+                </div>
+                <div>
+                    <label style="font-weight:bold; color:#742a2a">Fuego</label>
+                    <select id="exp_fuego">
+                        <option value="">-- Selec --</option>
+                        ${nivelesFuego.map(n => `<option>${n}</option>`).join("")}
+                    </select>
+                </div>
+                <div>
+                    <label style="font-weight:bold; color:#742a2a">Tiempo Parada</label>
+                    <select id="exp_parada">
+                        <option value="1">Menos de 1 hora</option>
+                        <option value="2">Entre 1 y 3 horas</option>
+                        <option value="3">Más de 3 horas</option>
+                    </select>
+                </div>
+            </div>
+
+            <label style="font-weight:bold; color:#742a2a">Daños y Coste Económico</label>
+            <textarea id="exp_danos" rows="2" placeholder="Describir daños y coste estimado" style="margin-bottom:15px;"></textarea>
+
+            <label style="font-weight:bold; color:#742a2a">Observaciones</label>
+            <textarea id="exp_obs" rows="2" placeholder="Detalles adicionales..." style="margin-bottom:20px;"></textarea>
+
+            <button class="btn btn-red" onclick="enviar('explosiones')">REGISTRAR INCIDENTE</button>
         </div>
     `;
 
@@ -393,13 +468,9 @@ async function cargarIncidenciasAnteriores() {
         const res = await fetch(SCRIPT_URL + "?action=getIncidenciasAnteriores");
         const respuesta = await res.json();
         
-        // Si nos devuelve una fecha, actualizamos el título
-        if (respuesta.fechaRef) {
-            titulo.innerText = "📅 Incidencias del " + respuesta.fechaRef;
-        }
+        if (respuesta.fechaRef) titulo.innerText = "📅 Incidencias del " + respuesta.fechaRef;
 
         const data = respuesta.datos || [];
-
         if (!data || data.length === 0) {
             div.innerHTML = "<div style='color:#b58900; font-style:italic;'>Sin datos anteriores encontrados.</div>";
             return;
@@ -416,7 +487,6 @@ async function cargarIncidenciasAnteriores() {
         });
         html += `</tbody></table>`;
         div.innerHTML = html;
-
     } catch (e) { div.innerHTML = "Error cargando historial."; }
 }
 
@@ -510,33 +580,25 @@ async function enviar(tipo){
     };
 
     if (tipo === "parte") {
-        data.h_mol_fin = hmf.value; 
-        data.h_prod_fin = hpf.value;
-        data.t_prod = t_prod.value; // Solo la lectura actual
-
+        data.h_mol_fin = document.getElementById("hmf").value; 
+        data.h_prod_fin = document.getElementById("hpf").value;
+        data.t_prod = document.getElementById("t_prod").value; 
         if(!data.t_prod) { alert("Faltan las toneladas"); return; }
     }
 
     if (tipo === "incidencias") {
         const filasTareas = Array.from(document.querySelectorAll("#t-tareas tbody tr"));
         let errorHora = false;
-        
         data.tareas = filasTareas.map(tr => {
             const p = tr.querySelector(".p").value;
             const a = tr.querySelector(".a").value;
-            
-            if (p && a && p > a) {
-                alert(`Error: Parada (${p}) posterior al arranque (${a}).`);
-                errorHora = true;
-            }
-            
+            if (p && a && p > a) { alert(`Error: Parada (${p}) posterior al arranque (${a}).`); errorHora = true; }
             return {
                 p: p, a: a,
                 t: tr.cells[2].querySelector("select").value, ac: tr.cells[3].querySelector("select").value,
                 o: tr.querySelector(".obs").value
             };
         }).filter(t => t.p !== "");
-
         if(errorHora) return; 
     }
 
@@ -548,6 +610,21 @@ async function enviar(tipo){
                     pos: r.querySelector(".pos-input").value, prov: r.querySelector(".prov-input").value
                 }))
             })).filter(r => r.item !== "");
+    }
+
+    if (tipo === "explosiones") {
+        data.material = document.getElementById("exp_material").value;
+        data.origen = document.getElementById("exp_origen").value;
+        data.tipoExp = document.getElementById("exp_tipo").value;
+        data.estallido = document.getElementById("exp_estallido").value;
+        data.fuego = document.getElementById("exp_fuego").value;
+        data.parada = document.getElementById("exp_parada").value; 
+        data.danos = document.getElementById("exp_danos").value;
+        data.obs = document.getElementById("exp_obs").value;
+
+        if (!data.material || !data.tipoExp || !data.estallido || !data.fuego) {
+            alert("Rellena todos los campos del incidente"); return;
+        }
     }
 
     if (!confirm("¿Enviar datos?")) return;
@@ -567,6 +644,15 @@ async function enviar(tipo){
         }
         if (tipo === "recambios") {
             document.querySelector("#t-recambios tbody").innerHTML = ""; addRecambio();
+        }
+        if (tipo === "explosiones") {
+            document.getElementById("exp_material").value = "";
+            document.getElementById("exp_origen").value = "";
+            document.getElementById("exp_danos").value = "";
+            document.getElementById("exp_obs").value = "";
+            // Reset selects
+            document.getElementById("exp_estallido").value = "";
+            document.getElementById("exp_fuego").value = "";
         }
 
     } catch (e){ alert("Error enviando"); }
@@ -602,7 +688,7 @@ function renderJordi(){
     document.getElementById("user-tag").innerText = "📊 CM: JORDI";
     document.getElementById("view").innerHTML = `
         <div class="card">
-            <div class="section-title">Resumen de Producción (Neto x0.63)</div>
+            <div class="section-title">Resumen de Producción (Neto x0.61)</div>
             <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
                 <div><label>Desde</label><br><input type="date" id="f_ini"></div>
                 <div><label>Hasta</label><br><input type="date" id="f_fin"></div>
@@ -652,24 +738,17 @@ async function generarReporte(){
         // ============ VISTA JORDI ============
         if (currentUser === 'jordi') {
             html = `<table style="width:100%;"><thead><tr><th>Fecha</th><th>Prod. Neta (t)</th></tr></thead><tbody>`;
-            
             dataRows.forEach(r => {
                 const [dd,mm,yy] = r[0].split("/"); 
                 const d = new Date(`${yy}-${mm}-${dd}`);
-                
                 if (d >= finiD && d <= ffinD) {
-                    // Jordi ve Columna A y Columna I (Index 8) -> El calculado por excel
                     let valNeto = r[8]; 
-                    if(!valNeto || valNeto.toString().startsWith("=")) valNeto = "Calc..."; // Si está pendiente de calcular
-                    
-                    // Intentar formatear si es número
+                    if(!valNeto || valNeto.toString().startsWith("=")) valNeto = "Calc..."; 
                     let num = parseFloat(valNeto);
                     if(!isNaN(num)) valNeto = num.toFixed(2);
-
                     html += `<tr><td>${r[0]}</td><td style="color:var(--blue); font-weight:bold;">${valNeto} t</td></tr>`;
                 }
             });
-            
         } 
         // ============ VISTA ADMIN (COMPLETA) ============
         else {
@@ -679,7 +758,6 @@ async function generarReporte(){
                 const d = new Date(`${yy}-${mm}-${dd}`);
                 if (d >= finiD && d <= ffinD) { 
                     reporteActual.push(r); 
-                    // Mostramos hasta columna I (Index 0-8)
                     html += `<tr>
                         <td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td>
                         <td>${r[4]}</td><td>${r[5]}</td><td>${r[6]}</td>
@@ -689,7 +767,6 @@ async function generarReporte(){
             });
             if (reporteActual.length > 0) document.getElementById("btnDownload").style.display = "block";
         }
-
         html += "</tbody></table>"; 
         out.innerHTML = html;
         
@@ -705,4 +782,4 @@ function descargarCSV(){
 </script>
 
 </body>
-</html
+</html>
