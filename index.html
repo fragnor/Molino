@@ -159,7 +159,7 @@
 
 <script>
 // ACTUALIZA ESTA URL SI CAMBIA
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxYANQ1Fz-wwhfAhKrmbdQk6KZch5TfPfbNRubMwtlhtgBLn7QtsCrbBWPszcmUrdpP/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw-tTgoFKb7GGmVm2HO-YriqnXxdNDVWKC6qO0wexz4KRnB5V0B6pXuB_B6kQLO8R6v/exec";
 
 let activos = [], tareas = [], recambios = [], proveedores = [];
 let tiposExplosion = [], nivelesEstallido = [], nivelesFuego = [];
@@ -271,15 +271,15 @@ function renderOperario(name){
             <div class="counters-grid">
                 <div class="input-group">
                     <label>H. Molino Final</label>
-                    <input id="hmf" type="number" step="0.01" placeholder="valor">
+                    <input id="hmf" type="number" step="0.01" placeholder="00000.00">
                 </div>
                 <div class="input-group">
                     <label>H. Prod Final</label>
-                    <input id="hpf" type="number" step="0.01" placeholder="valor">
+                    <input id="hpf" type="number" step="0.01" placeholder="00000.00">
                 </div>
                 <div class="input-group" style="border-color:var(--green); background:#f0fff4;">
                     <label style="color:var(--green);">Toneladas Prod.</label>
-                    <input id="t_prod" type="number" step="0.01" placeholder="valor" style="background:#f0fff4; color:var(--green);">
+                    <input id="t_prod" type="number" step="0.01" placeholder="Lectura" style="background:#f0fff4; color:var(--green);">
                 </div>
             </div>
 
@@ -347,7 +347,7 @@ function renderOperario(name){
                  </div>
                  <div>
                     <label style="font-weight:bold; color:#742a2a">Origen</label>
-                    <input id="exp_origen" placeholder="Proveedor">
+                    <input id="exp_origen" placeholder="Lugar/Origen">
                  </div>
             </div>
 
@@ -721,18 +721,31 @@ function renderAdmin(){
 }
 
 function renderJordi(){
-    document.getElementById("user-tag").innerText = "📊 CM: JORDI";
+    document.getElementById("user-tag").innerText = "📊  JORDI";
+    
+    // Calcular fechas (hoy y hace 5 días)
+    const d_today = new Date();
+    const d_past = new Date();
+    d_past.setDate(d_today.getDate() - 5);
+    
+    const pad = n => n.toString().padStart(2, '0');
+    const todayStr = `${d_today.getFullYear()}-${pad(d_today.getMonth() + 1)}-${pad(d_today.getDate())}`;
+    const pastStr = `${d_past.getFullYear()}-${pad(d_past.getMonth() + 1)}-${pad(d_past.getDate())}`;
+
     document.getElementById("view").innerHTML = `
         <div class="card">
-            <div class="section-title">Resumen de Producción (Neto x0.61)</div>
+            <div class="section-title">Resumen de Producción </div>
             <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
-                <div><label>Desde</label><br><input type="date" id="f_ini"></div>
-                <div><label>Hasta</label><br><input type="date" id="f_fin"></div>
+                <div><label>Desde</label><br><input type="date" id="f_ini" value="${pastStr}"></div>
+                <div><label>Hasta</label><br><input type="date" id="f_fin" value="${todayStr}"></div>
                 <button class="btn btn-blue" onclick="generarReporte()">CONSULTAR</button>
             </div>
             <div style="margin-top:20px; border:1px solid #eee; max-height:350px; overflow-y:auto;"><div id="report-output"></div></div>
         </div>
     `;
+
+    // Disparar la consulta automáticamente para que vea los últimos 5 días al entrar
+    setTimeout(generarReporte, 100);
 }
 
 async function addExt(acc, inp){
@@ -771,20 +784,50 @@ async function generarReporte(){
         
         let html = "";
 
-        // ============ VISTA JORDI ============
+        // ============ VISTA JORDI (AGRUPADA Y SUMADA POR DÍA) ============
         if (currentUser === 'jordi') {
-            html = `<table style="width:100%;"><thead><tr><th>Fecha</th><th>Prod. Neta (t)</th></tr></thead><tbody>`;
+            let acumuladoDia = {};
+
             dataRows.forEach(r => {
-                const [dd,mm,yy] = r[0].split("/"); 
+                const [dd, mm, yy] = r[0].split("/"); 
+                if(!dd || !mm || !yy) return; // Saltamos si la fecha no es válida
+                
                 const d = new Date(`${yy}-${mm}-${dd}`);
+                
+                // Comprobar que está en el rango
                 if (d >= finiD && d <= ffinD) {
                     let valNeto = r[8]; 
-                    if(!valNeto || valNeto.toString().startsWith("=")) valNeto = "Calc..."; 
-                    let num = parseFloat(valNeto);
-                    if(!isNaN(num)) valNeto = num.toFixed(2);
-                    html += `<tr><td>${r[0]}</td><td style="color:var(--blue); font-weight:bold;">${valNeto} t</td></tr>`;
+                    if (valNeto && valNeto.toString().startsWith("=")) return; // Saltamos fórmulas no calculadas
+                    
+                    let num = parseFloat(valNeto?.toString().replace(',', '.') || 0);
+                    if (!isNaN(num)) {
+                        if (!acumuladoDia[r[0]]) {
+                            acumuladoDia[r[0]] = { fechaObjeto: d, total: 0 };
+                        }
+                        acumuladoDia[r[0]].total += num;
+                    }
                 }
             });
+
+            // Convertir el objeto a array y ordenar desde la fecha más reciente a la más antigua
+            let resultadosOrdenados = Object.keys(acumuladoDia).map(fecha => ({
+                fechaStr: fecha,
+                fechaObjeto: acumuladoDia[fecha].fechaObjeto,
+                total: acumuladoDia[fecha].total
+            })).sort((a, b) => b.fechaObjeto - a.fechaObjeto);
+
+            html = `<table style="width:100%;"><thead><tr><th>Fecha</th><th>Producción Neta Total (t)</th></tr></thead><tbody>`;
+            
+            if (resultadosOrdenados.length === 0) {
+                html += `<tr><td colspan="2" style="text-align:center; color:gray; padding: 20px;">No hay datos en este periodo</td></tr>`;
+            } else {
+                resultadosOrdenados.forEach(res => {
+                    html += `<tr>
+                                <td>${res.fechaStr}</td>
+                                <td style="color:var(--blue); font-weight:bold;">${res.total.toFixed(2)} t</td>
+                             </tr>`;
+                });
+            }
         } 
         // ============ VISTA ADMIN (COMPLETA) ============
         else {
@@ -803,6 +846,7 @@ async function generarReporte(){
             });
             if (reporteActual.length > 0) document.getElementById("btnDownload").style.display = "block";
         }
+        
         html += "</tbody></table>"; 
         out.innerHTML = html;
         
