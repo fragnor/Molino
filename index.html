@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Tradebe Molino v11.6</title>
+    <title>Tradebe Molino v11.5</title>
     <style>
         :root { 
             --blue: #0056b3; --green: #89b434; --orange: #e87e04; 
@@ -149,7 +149,7 @@
             <div>
                 <span style="color:var(--orange); font-weight:900;">TRADE</span>
                 <span style="color:var(--green); font-weight:900;">BE</span>
-                <small style="margin-left:10px; color:#999">MOLINO v11.6</small>
+                <small style="margin-left:10px; color:#999">MOLINO v11.5</small>
             </div>
             <div id="user-tag" style="padding:5px 12px; background:#edf2f7; border-radius:20px; font-weight:bold;"></div>
             <button onclick="logout()" style="cursor:pointer; border:1px solid #ccc; padding:6px 12px; border-radius:6px; background:white;">Cerrar sesión</button>
@@ -159,7 +159,7 @@
 
 <script>
 // ACTUALIZA ESTA URL SI CAMBIA
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxUjKryZo58ShhUf1zhF_NIjIEQJrlvEGCFmNeopdg9dDmk7X1EGTIUeUpcMalo1hg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRKHLBrYG1bn4YXMZL0Y1w5VAD0PLn8FQmGuHqZ0Vfd3k-y3lfbLKTfk80z_0OSQV3/exec";
 
 let activos = [], tareas = [], recambios = [], proveedores = [];
 let tiposExplosion = [], nivelesEstallido = [], nivelesFuego = [];
@@ -185,6 +185,7 @@ async function login() {
         recambios = data.recambios || [];
         proveedores = data.proveedores || [];
         
+        // Asignaciones desde Config
         tiposExplosion = data.tiposExplosion || [];
         nivelesEstallido = data.nivelesEstallido || [];
         nivelesFuego = data.nivelesFuego || [];
@@ -271,19 +272,19 @@ function renderOperario(name){
             <div class="counters-grid">
                 <div class="input-group">
                     <label>H. Molino Final</label>
-                    <input id="hmf" type="number" step="0.01" placeholder="00000.00">
+                    <input id="hmf" type="number" step="0.01" placeholder="Valor">
                 </div>
                 <div class="input-group">
                     <label>H. Prod Final</label>
-                    <input id="hpf" type="number" step="0.01" placeholder="00000.00">
+                    <input id="hpf" type="number" step="0.01" placeholder="Valor">
                 </div>
                 <div class="input-group" style="border-color:var(--green); background:#f0fff4;">
                     <label style="color:var(--green);">Toneladas Prod.</label>
-                    <input id="t_prod" type="number" step="0.01" placeholder="Lectura" style="background:#f0fff4; color:var(--green);">
+                    <input id="t_prod" type="number" step="0.01" placeholder="Valor" style="background:#f0fff4; color:var(--green);">
                 </div>
             </div>
 
-            <button class="btn btn-blue" onclick="enviarTodo()">ENVIAR DATOS (Todas las pestañas)</button>
+            <button class="btn btn-blue" onclick="enviar('parte')">ENVIAR PARTE</button>
 
             <div class="bubble-blue" id="hist-prod-container" style="display:none;">
                 <span class="bubble-title-blue">📊 Producción Reciente (Calculada)</span>
@@ -303,7 +304,7 @@ function renderOperario(name){
             </table>
 
             <button class="btn btn-add" onclick="addFila()">+ Añadir línea</button>
-            <button class="btn btn-blue" style="background:var(--orange); margin-top:15px;" onclick="enviarTodo()">ENVIAR DATOS (Todas las pestañas)</button>
+            <button class="btn btn-blue" style="background:var(--orange); margin-top:15px;" onclick="enviar('incidencias')">ENVIAR TAREAS</button>
             
             <div class="bubble-blue" id="hoy-container" style="display:none; background:#e6fffa; border-color:#4fd1c5;">
                 <span class="bubble-title-blue" style="color:#285e61;">📝 Mis incidencias de hoy</span>
@@ -328,7 +329,7 @@ function renderOperario(name){
                 <tbody></tbody>
             </table>
             <button class="btn btn-add" onclick="addRecambio()">+ Añadir recambio</button>
-            <button class="btn btn-green" style="margin-top:15px;" onclick="enviarTodo()">ENVIAR DATOS (Todas las pestañas)</button>
+            <button class="btn btn-green" style="margin-top:15px;" onclick="enviar('recambios')">REGISTRAR RECAMBIOS</button>
         </div>
 
         <div id="tab-explosiones" class="tab-content card" style="border-color:var(--danger-border); background:var(--danger-bg);">
@@ -382,7 +383,7 @@ function renderOperario(name){
             <label style="font-weight:bold; color:#742a2a">Observaciones</label>
             <textarea id="exp_obs" rows="2" placeholder="Detalles adicionales..." style="margin-bottom:20px;"></textarea>
 
-            <button class="btn btn-red" onclick="enviarTodo()">ENVIAR DATOS (Todas las pestañas)</button>
+            <button class="btn btn-red" onclick="enviar('explosiones')">REGISTRAR INCIDENTE</button>
         </div>
     `;
 
@@ -566,132 +567,95 @@ function genH(){
 
 function resetHoras(){ document.querySelectorAll("#t-tareas select.p, #t-tareas select.a").forEach(s => s.innerHTML = genH()); }
 
-/* FUNCIÓN DE ENVÍO UNIFICADA */
-async function enviarTodo(){
+async function enviar(tipo){
     const btn = event.target;
     const original = btn.innerText;
-    
-    // Obtener datos cabecera
     const rawFecha = document.getElementById("f_fecha").value;
     const [y,m,d] = rawFecha.split("-");
     const fecha = `${d}/${m}/${y}`;
-    const turno = document.getElementById("f_turno").value;
-    const lote = document.getElementById("f_lote")?.value || "N/A";
 
-    let payload = {
-        accion: "enviarTodo",
-        fecha: fecha, turno: turno, operario: currentUser, lote: lote,
-        parte: null, incidencias: null, recambios: null, explosiones: null
+    let data = {
+        fecha, turno: document.getElementById("f_turno").value,
+        operario: currentUser, tipo, lote: document.getElementById("f_lote")?.value || "N/A"
     };
 
-    let datosAEnviar = 0;
-
-    // 1. RECOPILAR PARTE
-    const t_prod = document.getElementById("t_prod").value;
-    const hmf = document.getElementById("hmf").value;
-    const hpf = document.getElementById("hpf").value;
-    if (t_prod || hmf || hpf) {
-        if (!t_prod) { alert("En el parte de trabajo faltan las toneladas."); return; }
-        payload.parte = { h_mol_fin: hmf, h_prod_fin: hpf, t_prod: t_prod };
-        datosAEnviar++;
+    if (tipo === "parte") {
+        data.h_mol_fin = document.getElementById("hmf").value; 
+        data.h_prod_fin = document.getElementById("hpf").value;
+        data.t_prod = document.getElementById("t_prod").value; 
+        if(!data.t_prod) { alert("Faltan las toneladas"); return; }
     }
 
-    // 2. RECOPILAR INCIDENCIAS
-    const filasTareas = Array.from(document.querySelectorAll("#t-tareas tbody tr"));
-    let errorHora = false;
-    let tareasValidas = filasTareas.map(tr => {
-        const p = tr.querySelector(".p").value;
-        const a = tr.querySelector(".a").value;
-        if (p && a && p > a) { 
-            alert(`Error en Incidencias: Parada (${p}) posterior al arranque (${a}).`); 
-            errorHora = true; 
+    if (tipo === "incidencias") {
+        const filasTareas = Array.from(document.querySelectorAll("#t-tareas tbody tr"));
+        let errorHora = false;
+        data.tareas = filasTareas.map(tr => {
+            const p = tr.querySelector(".p").value;
+            const a = tr.querySelector(".a").value;
+            if (p && a && p > a) { alert(`Error: Parada (${p}) posterior al arranque (${a}).`); errorHora = true; }
+            return {
+                p: p, a: a,
+                t: tr.cells[2].querySelector("select").value, ac: tr.cells[3].querySelector("select").value,
+                o: tr.querySelector(".obs").value
+            };
+        }).filter(t => t.p !== "");
+        if(errorHora) return; 
+    }
+
+    if (tipo === "recambios") {
+        data.recambios = Array.from(document.querySelectorAll("#t-recambios tbody tr"))
+            .map(tr => ({
+                item: tr.querySelector(".r-item").value, cant: tr.querySelector(".r-cant").value,
+                detalles: Array.from(tr.querySelectorAll(".pos-row")).map(r => ({
+                    pos: r.querySelector(".pos-input").value, prov: r.querySelector(".prov-input").value
+                }))
+            })).filter(r => r.item !== "");
+    }
+
+    if (tipo === "explosiones") {
+        data.material = document.getElementById("exp_material").value;
+        data.origen = document.getElementById("exp_origen").value;
+        data.tipoExp = document.getElementById("exp_tipo").value;
+        data.estallido = document.getElementById("exp_estallido").value;
+        data.fuego = document.getElementById("exp_fuego").value;
+        data.parada = document.getElementById("exp_parada").value; 
+        data.danos = document.getElementById("exp_danos").value;
+        data.obs = document.getElementById("exp_obs").value;
+
+        if (!data.material || !data.tipoExp || !data.estallido || !data.fuego) {
+            alert("Rellena todos los campos del incidente"); return;
         }
-        return {
-            p: p, a: a,
-            t: tr.cells[2].querySelector("select").value, 
-            ac: tr.cells[3].querySelector("select").value,
-            o: tr.querySelector(".obs").value
-        };
-    }).filter(t => t.p !== "" && t.a !== ""); // Solo cuenta si tienen horas puestas
-
-    if(errorHora) return; 
-    if(tareasValidas.length > 0) {
-        payload.incidencias = tareasValidas;
-        datosAEnviar++;
     }
 
-    // 3. RECOPILAR RECAMBIOS
-    let recambiosValidos = Array.from(document.querySelectorAll("#t-recambios tbody tr"))
-        .map(tr => ({
-            item: tr.querySelector(".r-item").value, 
-            cant: tr.querySelector(".r-cant").value,
-            detalles: Array.from(tr.querySelectorAll(".pos-row")).map(r => ({
-                pos: r.querySelector(".pos-input").value, prov: r.querySelector(".prov-input").value
-            }))
-        })).filter(r => r.item !== "" && r.cant > 0); // Solo cuenta si seleccionó un ítem y puso cantidad
-
-    if(recambiosValidos.length > 0) {
-        payload.recambios = recambiosValidos;
-        datosAEnviar++;
-    }
-
-    // 4. RECOPILAR EXPLOSIONES
-    const exp_material = document.getElementById("exp_material").value;
-    const exp_tipo = document.getElementById("exp_tipo").value;
-    const exp_estallido = document.getElementById("exp_estallido").value;
-    const exp_fuego = document.getElementById("exp_fuego").value;
-
-    if (exp_material || exp_tipo || exp_estallido || exp_fuego) {
-        if (!exp_material || !exp_tipo || !exp_estallido || !exp_fuego) {
-            alert("Has empezado a rellenar un incidente (Explosión). Por favor, rellena todos sus campos obligatorios o bórralos si ha sido un error."); 
-            return;
-        }
-        payload.explosiones = {
-            material: exp_material,
-            origen: document.getElementById("exp_origen").value,
-            tipoExp: exp_tipo,
-            estallido: exp_estallido,
-            fuego: exp_fuego,
-            parada: document.getElementById("exp_parada").value, 
-            danos: document.getElementById("exp_danos").value,
-            obs: document.getElementById("exp_obs").value
-        };
-        datosAEnviar++;
-    }
-
-    // PREVENCIÓN DE ENVÍO VACÍO
-    if (datosAEnviar === 0) {
-        alert("No hay ningún dato válido en las pestañas para enviar. Revisa que hayas rellenado las horas de incidencia, cantidad de recambio o toneladas.");
-        return;
-    }
-
-    if (!confirm(`Se van a enviar los datos detectados en ${datosAEnviar} pestaña(s). ¿Continuar?`)) return;
-
-    // PROCEDER AL ENVÍO
-    btn.disabled = true; btn.innerText = "Enviando todos los datos...";
+    if (!confirm("¿Enviar datos?")) return;
+    btn.disabled = true; btn.innerText = "Enviando...";
 
     try {
-        await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-        alert("✔ Datos enviados y guardados correctamente");
+        await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
+        alert("✔ Datos enviados");
 
-        // Limpiar pantallas enviadas
-        if (payload.parte) {
-            ["f_lote","hmf","hpf","t_prod"].forEach(id => { const e = document.getElementById(id); if(e) e.value = ""; });
-            setTimeout(cargarHistorialProd, 1500);
+        if (tipo === "parte") {
+            ["f_lote","hmf","hpf","t_prod"].forEach(id => document.getElementById(id).value = "");
+            setTimeout(cargarHistorialProd, 2000);
         }
-        if (payload.incidencias) {
+        if (tipo === "incidencias") {
             document.querySelector("#t-tareas tbody").innerHTML = ""; addFila();
-            setTimeout(cargarIncidenciasHoy, 1500);
+            setTimeout(cargarIncidenciasHoy, 2000);
         }
-        if (payload.recambios) {
+        if (tipo === "recambios") {
             document.querySelector("#t-recambios tbody").innerHTML = ""; addRecambio();
         }
-        if (payload.explosiones) {
-            ["exp_material","exp_origen","exp_danos","exp_obs","exp_tipo","exp_estallido","exp_fuego"].forEach(id => document.getElementById(id).value = "");
-            document.getElementById("exp_parada").value = "1";
+        if (tipo === "explosiones") {
+            document.getElementById("exp_material").value = "";
+            document.getElementById("exp_origen").value = "";
+            document.getElementById("exp_danos").value = "";
+            document.getElementById("exp_obs").value = "";
+            // Reset selects
+            document.getElementById("exp_estallido").value = "";
+            document.getElementById("exp_fuego").value = "";
         }
 
-    } catch (e){ alert("Error enviando los datos de las pestañas."); }
+    } catch (e){ alert("Error enviando"); }
 
     btn.disabled = false; btn.innerText = original;
 }
@@ -721,31 +685,18 @@ function renderAdmin(){
 }
 
 function renderJordi(){
-    document.getElementById("user-tag").innerText = "📊  JORDI";
-    
-    // Calcular fechas (hoy y hace 5 días)
-    const d_today = new Date();
-    const d_past = new Date();
-    d_past.setDate(d_today.getDate() - 5);
-    
-    const pad = n => n.toString().padStart(2, '0');
-    const todayStr = `${d_today.getFullYear()}-${pad(d_today.getMonth() + 1)}-${pad(d_today.getDate())}`;
-    const pastStr = `${d_past.getFullYear()}-${pad(d_past.getMonth() + 1)}-${pad(d_past.getDate())}`;
-
+    document.getElementById("user-tag").innerText = "📊 CM: JORDI";
     document.getElementById("view").innerHTML = `
         <div class="card">
-            <div class="section-title">Resumen de Producción </div>
+            <div class="section-title">Resumen de Producción (Neto x0.61)</div>
             <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
-                <div><label>Desde</label><br><input type="date" id="f_ini" value="${pastStr}"></div>
-                <div><label>Hasta</label><br><input type="date" id="f_fin" value="${todayStr}"></div>
+                <div><label>Desde</label><br><input type="date" id="f_ini"></div>
+                <div><label>Hasta</label><br><input type="date" id="f_fin"></div>
                 <button class="btn btn-blue" onclick="generarReporte()">CONSULTAR</button>
             </div>
             <div style="margin-top:20px; border:1px solid #eee; max-height:350px; overflow-y:auto;"><div id="report-output"></div></div>
         </div>
     `;
-
-    // Disparar la consulta automáticamente para que vea los últimos 5 días al entrar
-    setTimeout(generarReporte, 100);
 }
 
 async function addExt(acc, inp){
@@ -784,50 +735,20 @@ async function generarReporte(){
         
         let html = "";
 
-        // ============ VISTA JORDI (AGRUPADA Y SUMADA POR DÍA) ============
+        // ============ VISTA JORDI ============
         if (currentUser === 'jordi') {
-            let acumuladoDia = {};
-
+            html = `<table style="width:100%;"><thead><tr><th>Fecha</th><th>Prod. Neta (t)</th></tr></thead><tbody>`;
             dataRows.forEach(r => {
-                const [dd, mm, yy] = r[0].split("/"); 
-                if(!dd || !mm || !yy) return; // Saltamos si la fecha no es válida
-                
+                const [dd,mm,yy] = r[0].split("/"); 
                 const d = new Date(`${yy}-${mm}-${dd}`);
-                
-                // Comprobar que está en el rango
                 if (d >= finiD && d <= ffinD) {
                     let valNeto = r[8]; 
-                    if (valNeto && valNeto.toString().startsWith("=")) return; // Saltamos fórmulas no calculadas
-                    
-                    let num = parseFloat(valNeto?.toString().replace(',', '.') || 0);
-                    if (!isNaN(num)) {
-                        if (!acumuladoDia[r[0]]) {
-                            acumuladoDia[r[0]] = { fechaObjeto: d, total: 0 };
-                        }
-                        acumuladoDia[r[0]].total += num;
-                    }
+                    if(!valNeto || valNeto.toString().startsWith("=")) valNeto = "Calc..."; 
+                    let num = parseFloat(valNeto);
+                    if(!isNaN(num)) valNeto = num.toFixed(2);
+                    html += `<tr><td>${r[0]}</td><td style="color:var(--blue); font-weight:bold;">${valNeto} t</td></tr>`;
                 }
             });
-
-            // Convertir el objeto a array y ordenar desde la fecha más reciente a la más antigua
-            let resultadosOrdenados = Object.keys(acumuladoDia).map(fecha => ({
-                fechaStr: fecha,
-                fechaObjeto: acumuladoDia[fecha].fechaObjeto,
-                total: acumuladoDia[fecha].total
-            })).sort((a, b) => b.fechaObjeto - a.fechaObjeto);
-
-            html = `<table style="width:100%;"><thead><tr><th>Fecha</th><th>Producción Neta Total (t)</th></tr></thead><tbody>`;
-            
-            if (resultadosOrdenados.length === 0) {
-                html += `<tr><td colspan="2" style="text-align:center; color:gray; padding: 20px;">No hay datos en este periodo</td></tr>`;
-            } else {
-                resultadosOrdenados.forEach(res => {
-                    html += `<tr>
-                                <td>${res.fechaStr}</td>
-                                <td style="color:var(--blue); font-weight:bold;">${res.total.toFixed(2)} t</td>
-                             </tr>`;
-                });
-            }
         } 
         // ============ VISTA ADMIN (COMPLETA) ============
         else {
@@ -846,7 +767,6 @@ async function generarReporte(){
             });
             if (reporteActual.length > 0) document.getElementById("btnDownload").style.display = "block";
         }
-        
         html += "</tbody></table>"; 
         out.innerHTML = html;
         
