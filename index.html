@@ -157,7 +157,7 @@
 
 <script>
 // ACTUALIZA ESTA URL SI CAMBIA
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxc89utGazKPnhbuyTuJNATZsKTgXfwsaY_N-MuQpiZ_DYPiMsuw73pmdaC9LyuXH1-/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz-9BDgYQ3ANUIZxQj2nVUtlCpAQHJjxNZpxTBFj7AkkIiCc0-8cq0c59NnLTR_d7s/exec";
 
 let activos = [], tareas = [], recambios = [], proveedores = [];
 let tiposExplosion = [], nivelesEstallido = [], nivelesFuego = [];
@@ -615,17 +615,40 @@ async function enviarTodo(){
     const exp_tip = document.getElementById("exp_tipo").value;
     const exp_est = document.getElementById("exp_estallido").value;
     const exp_fue = document.getElementById("exp_fuego").value;
+    const exp_par = document.getElementById("exp_parada").value;
+
     if (exp_mat || exp_tip || exp_est || exp_fue) {
         if (!exp_mat || !exp_tip || !exp_est || !exp_fue) {
             alert("Pestaña Explosiones: Faltan campos obligatorios del incidente."); return;
         }
+
+        let nEstallido = 0;
+        if (exp_est === "Bajo") nEstallido = 1;
+        else if (exp_est === "Medio") nEstallido = 2;
+        else if (exp_est === "Alto") nEstallido = 3;
+
+        let nFuego = 0;
+        if (exp_fue === "Sin presencia de fuego") nFuego = 1;
+        else if (exp_fue === "fogonazo") nFuego = 2;
+        else if (exp_fue === "fuego") nFuego = 3;
+
+        let nTiempo = parseInt(exp_par) || 1; 
+
+        let calculo = nEstallido * nFuego * nTiempo;
+        let nivelSeveridad = "";
+        
+        if (calculo >= 1 && calculo <= 4) nivelSeveridad = "Leve";
+        else if (calculo >= 6 && calculo <= 12) nivelSeveridad = "Moderado";
+        else if (calculo >= 18 && calculo <= 27) nivelSeveridad = "Fuerte";
+
         payload.explosiones = {
             material: exp_mat,
             tipoExp: exp_tip,
             origen: document.getElementById("exp_origen").value,
             estallido: exp_est,
             fuego: exp_fue,
-            parada: document.getElementById("exp_parada").value,
+            parada: exp_par,
+            severidad: nivelSeveridad,
             danos: document.getElementById("exp_danos").value,
             obs: document.getElementById("exp_obs").value
         };
