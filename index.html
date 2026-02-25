@@ -157,7 +157,7 @@
 
 <script>
 // ACTUALIZA ESTA URL SI CAMBIA
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyhO7uJoDBh9Myx2zvG3MVmZFtUQ_jwG78DguJXo912IRsfQ89hi_i4tQeE0ZL5piqF/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx49zp-RBtPL86-URrIBlR2FbF9BnoBT_RufJ5AEKODKOm_9W0-n6ajR-u-Inq9udba/exec";
 
 let activos = [], tareas = [], recambios = [], proveedores = [];
 let tiposExplosion = [], nivelesEstallido = [], nivelesFuego = [];
@@ -550,7 +550,7 @@ function genH(){
 }
 
 function resetHoras(){ document.querySelectorAll("#t-tareas select.p, #t-tareas select.a").forEach(s => s.innerHTML = genH()); }
-  /* ENVÍO CONSOLIDADO (TODAS LAS PESTAÑAS) */
+    /* ENVÍO CONSOLIDADO (TODAS LAS PESTAÑAS) */
 async function enviarTodo(){
     const btn = event.target;
     const original = btn.innerText;
