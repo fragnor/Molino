@@ -157,7 +157,7 @@
 
 <script>
 // ACTUALIZA ESTA URL SI CAMBIA
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyPVLY5PReb3i22lK4VPU8sWgX2KWfdwMAIkB82Edt3OC7zDo9GydYc8kPBuwLDWLOM/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz-y0I7MQOcTqPmDmC5vyAau1Eua2DMNNhXztioP2XmFMWGunrlTJ_mqUPfZwsQywQQ/exec";
 
 let activos = [], tareas = [], recambios = [], proveedores = [];
 let tiposExplosion = [], nivelesEstallido = [], nivelesFuego = [];
@@ -183,7 +183,6 @@ async function login() {
         recambios = data.recambios || [];
         proveedores = data.proveedores || [];
         
-        // Asignaciones desde Config (Añadidas dinámicamente)
         tiposExplosion = data.tiposExplosion || [];
         nivelesEstallido = data.nivelesEstallido || [];
         nivelesFuego = data.nivelesFuego || [];
@@ -355,22 +354,27 @@ function renderOperario(name){
                     <label style="font-weight:bold; color:#742a2a">Estallido</label>
                     <select id="exp_estallido">
                         <option value="">-- Selec --</option>
-                        ${nivelesEstallido.map(n => `<option>${n}</option>`).join("")}
+                        <option value="bajo">Bajo</option>
+                        <option value="medio">Medio</option>
+                        <option value="alto">Alto</option>
                     </select>
                 </div>
                 <div>
                     <label style="font-weight:bold; color:#742a2a">Fuego</label>
                     <select id="exp_fuego">
                         <option value="">-- Selec --</option>
-                        ${nivelesFuego.map(n => `<option>${n}</option>`).join("")}
+                        <option value="sin presencia de fuego">Sin presencia de fuego</option>
+                        <option value="fogonazo">Fogonazo</option>
+                        <option value="fuego">Fuego</option>
                     </select>
                 </div>
                 <div>
                     <label style="font-weight:bold; color:#742a2a">Tiempo Parada</label>
                     <select id="exp_parada">
-                        <option value="1">Menos de 1 hora</option>
-                        <option value="2">Entre 1 y 3 horas</option>
-                        <option value="3">Más de 3 horas</option>
+                        <option value="">-- Selec --</option>
+                        <option value="parada no superior a 1 hora">Parada no superior a 1 hora</option>
+                        <option value="parada no superior a 3 horas">Parada no superior a 3 horas</option>
+                        <option value="parada superior a 3 horas">Parada superior a 3 horas</option>
                     </select>
                 </div>
             </div>
@@ -546,8 +550,7 @@ function genH(){
 }
 
 function resetHoras(){ document.querySelectorAll("#t-tareas select.p, #t-tareas select.a").forEach(s => s.innerHTML = genH()); }
-
-/* ENVÍO CONSOLIDADO (TODAS LAS PESTAÑAS) */
+  /* ENVÍO CONSOLIDADO (TODAS LAS PESTAÑAS) */
 async function enviarTodo(){
     const btn = event.target;
     const original = btn.innerText;
@@ -622,25 +625,7 @@ async function enviarTodo(){
             alert("Pestaña Explosiones: Faltan campos obligatorios del incidente."); return;
         }
 
-        let nEstallido = 0;
-        if (exp_est === "Bajo") nEstallido = 1;
-        else if (exp_est === "Medio") nEstallido = 2;
-        else if (exp_est === "Alto") nEstallido = 3;
-
-        let nFuego = 0;
-        if (exp_fue === "Sin presencia de fuego") nFuego = 1;
-        else if (exp_fue === "fogonazo") nFuego = 2;
-        else if (exp_fue === "fuego") nFuego = 3;
-
-        let nTiempo = parseInt(exp_par) || 1; 
-
-        let calculo = nEstallido * nFuego * nTiempo;
-        let nivelSeveridad = "";
-        
-        if (calculo >= 1 && calculo <= 4) nivelSeveridad = "Leve";
-        else if (calculo >= 6 && calculo <= 12) nivelSeveridad = "Moderado";
-        else if (calculo >= 18 && calculo <= 27) nivelSeveridad = "Fuerte";
-
+        // Aquí enviamos al servidor los strings tal cual para que Apps Script haga el cálculo fuerte.
         payload.explosiones = {
             material: exp_mat,
             tipoExp: exp_tip,
@@ -648,7 +633,6 @@ async function enviarTodo(){
             estallido: exp_est,
             fuego: exp_fue,
             parada: exp_par,
-            severidad: nivelSeveridad,
             danos: document.getElementById("exp_danos").value,
             obs: document.getElementById("exp_obs").value
         };
@@ -682,8 +666,7 @@ async function enviarTodo(){
             document.querySelector("#t-recambios tbody").innerHTML = ""; addRecambio();
         }
         if (payload.explosiones) {
-            ["exp_material","exp_origen","exp_danos","exp_obs","exp_tipo","exp_estallido","exp_fuego"].forEach(id => document.getElementById(id).value = "");
-            document.getElementById("exp_parada").value = "1";
+            ["exp_material","exp_origen","exp_danos","exp_obs","exp_tipo","exp_estallido","exp_fuego","exp_parada"].forEach(id => document.getElementById(id).value = "");
         }
 
     } catch (e){ alert("Error enviando datos."); }
