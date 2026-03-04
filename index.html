@@ -5,107 +5,56 @@
     <title>Tradebe Molino v11.6</title>
     <style>
         :root { 
-            --blue: #0056b3; --green: #89b434; --orange: #e87e04; 
+            --blue: #0056b3;
+            --green: #89b434; --orange: #e87e04; 
             --light: #f8f9fa; --dark: #2c3e50; --border: #dee2e6;
             --white: #ffffff; --shadow: rgba(0,0,0,0.08);
             --red: #dc3545; --danger-bg: #fff5f5; --danger-border: #feb2b2;
         }
-
         body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--light); margin: 0; padding: 0; color: var(--dark); }
-
         .page-section { display: none; }
         .page-section.active { display: block; }
-
-        #login-page {
-            height: 100vh; display: none; align-items: center; justify-content: center; background: var(--dark);
-        }
+        #login-page { height: 100vh; display: none; align-items: center; justify-content: center; background: var(--dark); }
         #login-page.active { display: flex; }
-
-        .header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            background: var(--white); padding: 12px 30px; 
-            box-shadow: 0 2px 10px var(--shadow); border-bottom: 3px solid var(--green);
-        }
-
+        .header { display: flex; justify-content: space-between; align-items: center; background: var(--white); padding: 12px 30px; box-shadow: 0 2px 10px var(--shadow); border-bottom: 3px solid var(--green); }
         .container { padding: 20px; max-width: 1100px; margin: auto; }
-
-        .card { 
-            background: var(--white); padding: 25px; border-radius: 12px; 
-            border: 1px solid var(--border); margin-bottom: 25px; 
-            box-shadow: 0 4px 6px var(--shadow); 
-        }
-
-        .section-title { 
-            font-size: 0.9em; font-weight: 800; color: var(--blue); 
-            border-left: 4px solid var(--orange); padding-left: 10px;
-            margin-bottom: 20px; text-transform: uppercase;
-        }
-
-        input, select, textarea { 
-            padding: 10px; border: 1px solid #ced4da; border-radius: 6px;
-            transition: border-color 0.2s; font-size: 0.95em; width: 100%; box-sizing: border-box;
-        }
+        .card { background: var(--white); padding: 25px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 25px; box-shadow: 0 4px 6px var(--shadow); }
+        .section-title { font-size: 0.9em; font-weight: 800; color: var(--blue); border-left: 4px solid var(--orange); padding-left: 10px; margin-bottom: 20px; text-transform: uppercase; }
+        input, select, textarea { padding: 10px; border: 1px solid #ced4da; border-radius: 6px; transition: border-color 0.2s; font-size: 0.95em; width: 100%; box-sizing: border-box; }
         input:focus, select:focus, textarea:focus { border-color: var(--blue); outline: none; }
-        
         .tabs-nav { display: flex; gap: 5px; margin-bottom: -1px; overflow-x: auto; }
-        .tab-btn { 
-            padding: 12px 25px; background: #e2e8f0; border: 1px solid var(--border); 
-            border-bottom: none; border-radius: 8px 8px 0 0; cursor: pointer; 
-            font-weight: bold; color: #64748b; white-space: nowrap;
-        }
-        .tab-btn.active { 
-            background: var(--white); color: var(--blue); 
-            border-top: 3px solid var(--blue); padding-bottom: 13px;
-        }
+        .tab-btn { padding: 12px 25px; background: #e2e8f0; border: 1px solid var(--border); border-bottom: none; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold; color: #64748b; white-space: nowrap; }
+        .tab-btn.active { background: var(--white); color: var(--blue); border-top: 3px solid var(--blue); padding-bottom: 13px; }
         .tab-btn.danger { color: #c53030; }
         .tab-btn.danger.active { border-top-color: #c53030; color: #c53030; }
-
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-
-        .counters-grid { 
-            display: grid; grid-template-columns: 1fr; gap: 20px; 
-            background: #f1f4f8; padding: 20px; border-radius: 10px; margin-bottom: 20px;
-        }
-
-        .input-group { 
-            display: flex; justify-content: space-between; align-items: center; 
-            background: var(--white); padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 10px;
-        }
+        .counters-grid { display: grid; grid-template-columns: 1fr; gap: 20px; background: #f1f4f8; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .input-group { display: flex; justify-content: space-between; align-items: center; background: var(--white); padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 10px; }
         .input-group label { font-size: 1em; font-weight: 600; color: #64748b; }
         .input-group input { width: 150px; border: none; font-weight: bold; color: var(--blue); font-size: 1.3em; text-align:right; border-bottom: 2px solid #eee; }
-
         table { width: 100%; border-collapse: collapse; }
         th { background: #f8f9fa; color: #475569; padding: 12px; font-size: 0.8em; text-transform: uppercase; border-bottom: 2px solid var(--border); text-align: left;}
         td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
-
-        .btn { 
-            padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; 
-            font-weight: bold; display: inline-flex; justify-content: center; width:100%;
-        }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; display: inline-flex; justify-content: center; width:100%; }
         .btn-blue { background: var(--blue); color:white; }
         .btn-green { background: var(--green); color:white; }
         .btn-red { background: var(--red); color:white; }
         .btn-add { background: #e2e8f0; }
         .btn-del { background:#fee2e2; color:#c00; padding:5px 10px; border-radius:4px; width:auto; }
         .btn-trash { background:transparent; border:none; cursor:pointer; font-size:1.2em; }
-
         .pos-container { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
         .pos-row { display: flex; gap:5px; }
         .pos-input { width:60px; padding:5px; border:1px solid var(--orange); background:#fffaf0; text-align:center; }
         .prov-input { flex:1; padding:5px; border:1px solid #ccc; }
-
         .login-card { background:white; padding:40px; border-radius:20px; width:340px; box-shadow:0 20px 40px rgba(0,0,0,0.4); }
-
         .bubble-info { background-color: #fff9db; border: 1px solid #ffe066; border-radius: 10px; padding: 15px; margin-top: 25px; }
         .bubble-blue { background-color: #e3f2fd; border: 1px solid #90caf9; border-radius: 10px; padding: 15px; margin-top: 25px; }
         .bubble-title { color: #d48806; font-weight: bold; font-size: 0.9em; margin-bottom: 10px; display: block; }
         .bubble-title-blue { color: #1976d2; font-weight: bold; font-size: 0.9em; margin-bottom: 10px; display: block; }
-        
         .info-table { width: 100%; font-size: 0.85em; }
         .info-table td { padding: 6px; border-bottom: 1px solid #fae39d; color: #555; }
         .info-table th { background: transparent; color: #d48806; border-bottom: 2px solid #fae39d; padding: 6px; text-align: left; }
-
         .prod-cards { display: flex; gap: 10px; justify-content: space-between; }
         .prod-card { background: white; flex:1; padding:10px; border-radius:8px; text-align:center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .prod-date { font-size:0.8em; color:#777; font-weight:bold; }
@@ -118,7 +67,6 @@
 </head>
 
 <body>
-
     <div id="login-page" class="page-section active">
         <div class="login-card">
             <h2 style="margin-bottom:25px"><span style="color:var(--orange)">TRADE</span><span style="color:var(--green)">BE</span></h2>
@@ -133,8 +81,7 @@
     <div id="app" class="page-section">
         <div class="header">
             <div>
-                <span style="color:var(--orange); font-weight:900;">TRADE</span>
-                <span style="color:var(--green); font-weight:900;">BE</span>
+                <span style="color:var(--orange); font-weight:900;">TRADE</span><span style="color:var(--green); font-weight:900;">BE</span>
                 <small style="margin-left:10px; color:#999">MOLINO v11.6</small>
             </div>
             <div id="user-tag" style="padding:5px 12px; background:#edf2f7; border-radius:20px; font-weight:bold;"></div>
@@ -144,15 +91,15 @@
     </div>
 
 <script>
-// ACTUALIZA ESTA URL SI CAMBIA
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwv-FPI9qtUkWV-wHQDCwnzjp8lEgQxvSJ4y0guev6kBH1bOn8SAkG1NsihA0Z0tLtW/exec";
+// ¡PEGAR AQUÍ TU URL NUEVA TERMINADA EN /exec !
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyEv5VQ58Zjx4oq0lzD3B7wRMxP_6pe8fBc6n2CH5gmXDg2djBPIaEMj9uF0Wm1qodl/exec";
 
 let activos = [], tareas = [], recambios = [], proveedores = [];
 let tiposExplosion = [], nivelesEstallido = [], nivelesFuego = [];
-let excelCreds = {}, reporteActual = [];
+let excelCreds = {}, reporteActual = [], reporteQSMAActual = [];
 let currentUser = "";
 
-/* LOGIN */
+/* LOGIN CON CONTROL DE ERRORES MEJORADO */
 async function login() {
     const user = document.getElementById('u').value.toLowerCase().trim();
     const pass = document.getElementById('p').value;
@@ -164,20 +111,37 @@ async function login() {
 
     try {
         const response = await fetch(SCRIPT_URL);
-        const data = await response.json();
+        
+        let data;
+        try {
+            data = await response.json();
+        } catch (jsonErr) {
+            alert("❌ Fallo de CORS/Conexión.\n\nPosibles causas:\n1. Desplegaste como 'Solo yo' en vez de 'Cualquier persona'.\n2. Falta dar permisos al Script desde el editor.\n3. La URL de arriba no acaba en /exec.");
+            document.getElementById('btnLogin').disabled = false;
+            document.getElementById('load-msg').style.display = "none";
+            return;
+        }
 
-        activos = data.activos;
-        tareas = data.tareas;
+        if (data && data.error) {
+            alert("⚠️ Error detectado en el servidor:\n" + data.error);
+            document.getElementById('btnLogin').disabled = false;
+            document.getElementById('load-msg').style.display = "none";
+            return;
+        }
+
+        activos = data.activos || [];
+        tareas = data.tareas || [];
         recambios = data.recambios || [];
         proveedores = data.proveedores || [];
-        
         tiposExplosion = data.tiposExplosion || [];
         nivelesEstallido = data.nivelesEstallido || [];
         nivelesFuego = data.nivelesFuego || [];
-        
-        excelCreds = data.credenciales;
+        excelCreds = data.credenciales || {};
 
-        if ((user === 'admin' && pass === '1234') || (user === 'jordi' && pass === 'jordi2') || (excelCreds[user] && excelCreds[user].toString() === pass)) {
+        if ((user === 'admin' && pass === '1234') || 
+            (user === 'jordi' && pass === 'jordi2') || 
+            (user === 'qsma' && pass === 'QSMA2') || 
+            (excelCreds[user] && excelCreds[user].toString() === pass)) {
             
             currentUser = user;
             document.getElementById('login-page').classList.remove('active');
@@ -185,6 +149,7 @@ async function login() {
 
             if (user === 'admin') renderAdmin();
             else if (user === 'jordi') renderJordi();
+            else if (user === 'qsma') renderQSMA();
             else {
                 renderOperario(user);
                 cargarIncidenciasAnteriores(); 
@@ -192,12 +157,12 @@ async function login() {
                 cargarHistorialProd();
             }
         } else {
-            alert("Credenciales incorrectas");
+            alert("❌ Credenciales incorrectas");
             document.getElementById('btnLogin').disabled = false;
             document.getElementById('load-msg').style.display = "none";
         }
     } catch (e) {
-        alert("Error de red");
+        alert("⚠️ Error de red o URL incorrecta.");
         document.getElementById('btnLogin').disabled = false;
         document.getElementById('load-msg').style.display = "none";
     }
@@ -214,14 +179,12 @@ function switchTab(tabId){
 
 function renderOperario(name){
     const todayISO = new Date().toISOString().split("T")[0];
-    
     const currentHour = new Date().getHours();
     let turnoAuto = "Mañana";
     if (currentHour >= 14 && currentHour < 22) turnoAuto = "Tarde";
     else if (currentHour >= 22 || currentHour < 6) turnoAuto = "Tarde"; 
 
     document.getElementById("user-tag").innerText = "👤 " + name.toUpperCase();
-
     document.getElementById("view").innerHTML = `
         <div class="card" style="padding:15px 25px; margin-bottom:15px;">
             <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
@@ -345,7 +308,6 @@ function renderOperario(name){
 
             <label style="font-weight:bold; color:#742a2a">Daños y Coste Económico</label>
             <textarea id="exp_danos" rows="2" placeholder="Describir daños y coste estimado" style="margin-bottom:15px;"></textarea>
-
             <label style="font-weight:bold; color:#742a2a">Observaciones</label>
             <textarea id="exp_obs" rows="2" placeholder="Detalles adicionales..." style="margin-bottom:20px;"></textarea>
 
@@ -454,9 +416,11 @@ function handleCantChange(input){
     container.innerHTML = "";
     if ((item.includes("placa") || item.includes("martillo")) && cant > 0) {
         for (let i = 0; i < cant; i++) {
-            const div = document.createElement("div"); div.className = "pos-row";
+            const div = document.createElement("div");
+            div.className = "pos-row";
             const pos = document.createElement("input"); pos.type = "number"; pos.className = "pos-input"; pos.placeholder = "Pos";
-            const prov = document.createElement("select"); prov.className = "prov-input";
+            const prov = document.createElement("select");
+            prov.className = "prov-input";
             prov.innerHTML = `<option value="">Fabricante...</option>` + proveedores.map(p => `<option>${p}</option>`).join("");
             div.appendChild(pos); div.appendChild(prov);
             container.appendChild(div);
@@ -479,14 +443,12 @@ function genH(){
 }
 
 function resetHoras(){ document.querySelectorAll("#t-tareas select.p, #t-tareas select.a").forEach(s => s.innerHTML = genH()); }
-  /* ENVÍO CONSOLIDADO (TODAS LAS PESTAÑAS) */
+
 async function enviarTodo(){
     const btn = event.target;
-    
     const rawFecha = document.getElementById("f_fecha").value;
     const [y,m,d] = rawFecha.split("-");
     const fecha = `${d}/${m}/${y}`;
-
     let payload = {
         accion: "submitAll",
         fecha: fecha, 
@@ -520,7 +482,6 @@ async function enviarTodo(){
             o: tr.querySelector(".obs").value
         };
     }).filter(t => t.p !== "");
-    
     if (errorHora) return;
     if (tareasValidas.length > 0) {
         payload.incidencias = tareasValidas;
@@ -547,10 +508,10 @@ async function enviarTodo(){
     const exp_est = document.getElementById("exp_estallido").value;
     const exp_fue = document.getElementById("exp_fuego").value;
     const exp_par = document.getElementById("exp_parada").value;
-
     if (exp_mat || exp_tip || exp_est || exp_fue) {
         if (!exp_mat || !exp_tip || !exp_est || !exp_fue) {
-            alert("Pestaña Explosiones: Faltan campos obligatorios del incidente."); return;
+            alert("Pestaña Explosiones: Faltan campos obligatorios del incidente.");
+            return;
         }
         payload.explosiones = {
             material: exp_mat, tipoExp: exp_tip, origen: document.getElementById("exp_origen").value,
@@ -562,25 +523,23 @@ async function enviarTodo(){
 
     if (!hayDatos) { alert("No has rellenado ningún dato nuevo en ninguna pestaña."); return; }
     if (!confirm("Se enviarán TODOS los datos rellenados de las pestañas. ¿Continuar?")) return;
-
     document.querySelectorAll(".btn").forEach(b => { 
         if(b.innerText.includes("ENVIAR") || b.innerText.includes("REGISTRAR")) { b.disabled = true; b.dataset.orig = b.innerText; b.innerText = "Enviando..."; }
     });
-
     try {
         await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-        alert("✔ Todos los datos se han enviado y guardado con éxito.");
-
+        alert("✔ Todos los datos se han guardado con éxito.");
         if (payload.parte) {
             ["f_lote","hmf","hpf","t_prod"].forEach(id => document.getElementById(id).value = "");
             setTimeout(cargarHistorialProd, 2000);
         }
         if (payload.incidencias) {
-            document.querySelector("#t-tareas tbody").innerHTML = ""; addFila();
-            setTimeout(cargarIncidenciasHoy, 2000);
+            document.querySelector("#t-tareas tbody").innerHTML = "";
+            addFila(); setTimeout(cargarIncidenciasHoy, 2000);
         }
         if (payload.recambios) {
-            document.querySelector("#t-recambios tbody").innerHTML = ""; addRecambio();
+            document.querySelector("#t-recambios tbody").innerHTML = "";
+            addRecambio();
         }
         if (payload.explosiones) {
             ["exp_material","exp_origen","exp_danos","exp_obs","exp_tipo","exp_estallido","exp_fuego","exp_parada"].forEach(id => document.getElementById(id).value = "");
@@ -661,7 +620,7 @@ function procesarDatosJordi(dataRows, finiD, ffinD) {
 
 function generarTablaJordi(agrupado) {
     let fechas = Object.keys(agrupado);
-    if (fechas.length === 0) return "<div style='padding:10px; color:gray'>No hay datos de producción en este rango de fechas.</div>";
+    if (fechas.length === 0) return "<div style='padding:10px; color:gray'>No hay datos de producción en este rango.</div>";
     
     fechas.sort((a,b) => {
         let [da,ma,ya] = a.split("/"); let [db,mb,yb] = b.split("/");
@@ -687,10 +646,117 @@ async function cargarJordiAuto() {
     } catch(e) { out.innerHTML = "<span style='color:var(--red)'>Error cargando el resumen automático.</span>"; }
 }
 
+// ---------------- PERFIL QSMA (NUEVO) ---------------- //
+function renderQSMA(){
+    document.getElementById("user-tag").innerText = "🛡️ QSMA";
+    document.getElementById("view").innerHTML = `
+        <div class="card" style="border-top:4px solid var(--red);">
+            <div class="section-title" style="color:var(--red);">Últimos Incidentes / Explosiones (3 días)</div>
+            <div id="qsma-auto" style="min-height:50px; overflow-x: auto;"><i style="color:gray;">Cargando datos recientes...</i></div>
+        </div>
+        <div class="card" style="border-top:4px solid var(--orange);">
+            <div class="section-title">Búsqueda y Descarga de Explosiones</div>
+            <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+                <div><label style="font-size:0.8em; font-weight:bold; color:gray;">Desde</label><br><input type="date" id="f_ini_qsma"></div>
+                <div><label style="font-size:0.8em; font-weight:bold; color:gray;">Hasta</label><br><input type="date" id="f_fin_qsma"></div>
+                <button class="btn btn-blue" onclick="generarReporteQSMA()">CONSULTAR EXPLOSIONES</button>
+                <button id="btnDownloadQSMA" class="btn btn-red" style="display:none;" onclick="descargarCSVQSMA()">DESCARGAR EXCEL</button>
+            </div>
+            <div style="margin-top:20px; border:1px solid #eee; max-height:350px; overflow-y:auto; overflow-x:auto;"><div id="report-output-qsma"></div></div>
+        </div>
+    `;
+    cargarQSMAAuto();
+}
+
+async function cargarQSMAAuto() {
+    const out = document.getElementById("qsma-auto");
+    try {
+        const res = await fetch(SCRIPT_URL + "?action=getExplosiones");
+        const dataRows = await res.json();
+        if (!dataRows || dataRows.length === 0) { out.innerHTML = "<div style='color:gray'>No hay explosiones registradas.</div>"; return; }
+        
+        let hoy = new Date();
+        let hace3 = new Date();
+        hace3.setDate(hoy.getDate() - 3); 
+        hace3.setHours(0,0,0,0);
+        
+        let html = `<table class="info-table" style="white-space:nowrap;"><thead><tr>
+            <th>Fecha</th><th>Turno</th><th>Operario</th><th>Lote</th><th>Material</th><th>Origen</th><th>Tipo</th><th>Estallido</th><th>Fuego</th><th>Parada</th><th>Daños</th><th>Obs</th><th>Calif</th>
+            </tr></thead><tbody>`;
+        
+        let hayDatos = false;
+        dataRows.forEach(r => {
+            if (!r[0]) return;
+            const parts = r[0].split("/");
+            if(parts.length !== 3) return;
+            const d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T12:00:00`);
+            if (d >= hace3) {
+                hayDatos = true;
+                html += `<tr>${r.slice(0,13).map(c => `<td>${c}</td>`).join("")}</tr>`;
+            }
+        });
+        html += "</tbody></table>";
+        out.innerHTML = hayDatos ? html : "<div style='color:gray; padding:10px;'>No se han registrado explosiones en los últimos 3 días.</div>";
+    } catch(e) { out.innerHTML = "<span style='color:var(--red)'>Error cargando datos de explosiones.</span>"; }
+}
+
+async function generarReporteQSMA(){
+    const fini = document.getElementById("f_ini_qsma").value; 
+    const ffin = document.getElementById("f_fin_qsma").value; 
+    const out = document.getElementById("report-output-qsma");
+    if (!fini || !ffin) return;
+    out.innerHTML = "<div style='padding:20px; text-align:center; color:gray'>Consultando...</div>"; 
+    document.getElementById("btnDownloadQSMA").style.display = "none";
+    
+    try {
+        const res = await fetch(SCRIPT_URL + "?action=getExplosiones");
+        const dataRows = await res.json(); 
+        reporteQSMAActual = [];
+        
+        const finiD = new Date(fini); finiD.setHours(0,0,0,0);
+        const ffinD = new Date(ffin); ffinD.setHours(23,59,59,999);
+        
+        let html = `<table class="info-table" style="white-space:nowrap;"><thead><tr>
+            <th>Fecha</th><th>Turno</th><th>Operario</th><th>Lote</th><th>Material</th><th>Origen</th><th>Tipo</th><th>Estallido</th><th>Fuego</th><th>Parada</th><th>Daños</th><th>Obs</th><th>Calif</th>
+            </tr></thead><tbody>`;
+        
+        dataRows.forEach(r => {
+            if(!r[0]) return;
+            const parts = r[0].split("/");
+            if(parts.length !== 3) return;
+            const d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T12:00:00`);
+            
+            if (d >= finiD && d <= ffinD) { 
+                reporteQSMAActual.push(r); 
+                html += `<tr>${r.slice(0,13).map(c => `<td>${c}</td>`).join("")}</tr>`; 
+            }
+        });
+        
+        if (reporteQSMAActual.length > 0) document.getElementById("btnDownloadQSMA").style.display = "inline-flex";
+        html += "</tbody></table>";
+        out.innerHTML = html;
+    } catch (e) { out.innerHTML = "Error cargando datos"; }
+}
+
+function descargarCSVQSMA(){
+    let csv = "sep=;\nFecha;Turno;Operario;Lote;Material introducido;Origen;Tipo de explosión;Estallido;Fuego;Tiempo de parada;Daños y coste economico;Observaciones;Calificación\n";
+    reporteQSMAActual.forEach(r => { 
+        let rowStr = r.slice(0,13).map(val => {
+            if (val == null) return "";
+            return String(val).replace(/;/g, ",").replace(/\n/g, " ");
+        }).join(";");
+        csv += rowStr + "\n"; 
+    });
+    const blob = new Blob(["\ufeff" + csv], { type:"text/csv;charset=utf-8;" });
+    const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Reporte_Explosiones_QSMA.csv";
+    link.click();
+}
+// ---------------- FIN PERFIL QSMA ---------------- //
+
 async function addExt(acc, inp){
     const val = document.getElementById(inp).value; if (!val) return;
     fetch(SCRIPT_URL, { method:"POST", mode:"no-cors", body:JSON.stringify({accion:acc, valor:val}) });
-    alert("Guardado"); document.getElementById(inp).value = "";
+    alert("Guardado en el Excel"); document.getElementById(inp).value = "";
 }
 
 async function addOperario(){
@@ -698,30 +764,28 @@ async function addOperario(){
     const pass = document.getElementById("pOp").value;
     if (!nombre || !pass) return;
     fetch(SCRIPT_URL, { method:"POST", mode:"no-cors", body:JSON.stringify({accion:"addOperario", nombre, pass}) });
-    alert("Operario creado"); document.getElementById("nOp").value = ""; document.getElementById("pOp").value = "";
+    alert("Operario guardado en el Excel"); document.getElementById("nOp").value = ""; document.getElementById("pOp").value = "";
 }
 
 async function generarReporte(){
     const fini = document.getElementById("f_ini").value; 
     const ffin = document.getElementById("f_fin").value; 
     const out = document.getElementById("report-output");
-    
     if (!fini || !ffin) return;
     out.innerHTML = "<div style='padding:20px; text-align:center; color:gray'>Consultando...</div>"; 
     
     if(currentUser !== 'jordi') document.getElementById("btnDownload").style.display = "none";
-
     try {
-        const res = await fetch(SCRIPT_URL + "?action=getReport"); 
+        const res = await fetch(SCRIPT_URL + "?action=getReport");
         const dataRows = await res.json(); 
         reporteActual = [];
         let html = "";
-
         if (currentUser === 'jordi') {
             let agrupado = procesarDatosJordi(dataRows, new Date(fini), new Date(ffin));
             html = generarTablaJordi(agrupado);
         } else {
-            const finiD = new Date(fini); finiD.setHours(0,0,0,0);
+            const finiD = new Date(fini);
+            finiD.setHours(0,0,0,0);
             const ffinD = new Date(ffin); ffinD.setHours(23,59,59,999);
             
             html = `<table style="min-width:900px;"><thead><tr><th>Fecha</th><th>Turno</th><th>Operario</th><th>Lote</th><th>H Mol F</th><th>H Prod F</th><th>Lectura</th><th>Prod Turno</th><th>Prod Neta</th></tr></thead><tbody>`;
@@ -737,7 +801,7 @@ async function generarReporte(){
                 }
             });
             if (reporteActual.length > 0) document.getElementById("btnDownload").style.display = "block";
-            html += "</tbody></table>"; 
+            html += "</tbody></table>";
         }
         out.innerHTML = html;
     } catch (e) { out.innerHTML = "Error cargando datos"; }
@@ -747,7 +811,8 @@ function descargarCSV(){
     let csv = "sep=;\nFecha;Turno;Operario;Lote;H_Mol_F;H_Prod_F;Lectura;Prod_Turno;Prod_Neta\n";
     reporteActual.forEach(r => { csv += r.slice(0,9).join(";") + "\n"; });
     const blob = new Blob(["\ufeff" + csv], { type:"text/csv;charset=utf-8;" });
-    const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Reporte_Tradebe.csv"; link.click();
+    const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Reporte_Tradebe.csv";
+    link.click();
 }
 </script>
 </body>
