@@ -46,6 +46,7 @@
         .pos-container { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
         .pos-row { display: flex; gap:5px; }
         .pos-input { width:60px; padding:5px; border:1px solid var(--orange); background:#fffaf0; text-align:center; }
+        .eje-input { width:60px; padding:5px; border:1px solid var(--orange); background:#fffaf0; text-align:center; }
         .prov-input { flex:1; padding:5px; border:1px solid #ccc; }
         .login-card { background:white; padding:40px; border-radius:20px; width:340px; box-shadow:0 20px 40px rgba(0,0,0,0.4); }
         .bubble-info { background-color: #fff9db; border: 1px solid #ffe066; border-radius: 10px; padding: 15px; margin-top: 25px; }
@@ -91,8 +92,8 @@
     </div>
 
 <script>
-// ¡PEGAR AQUÍ TU URL NUEVA TERMINADA EN /exec !
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMnI9TA68EiAM9hGybQ-5syklwQVnN1sJ_AflyPJfuk_fkOQhmPlr-bHfO42n6nZcV/exec";
+// ACTUALIZA ESTA URL SI CAMBIA
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwUewJYE2v_rCylBX0XEGJMYmnIbNEb4_aXpMRU0nrdhkpr7QKlRpGQnIdefW8eckLB/exec";
 
 let activos = [], tareas = [], recambios = [], proveedores = [];
 let tiposExplosion = [], nivelesEstallido = [], nivelesFuego = [];
@@ -414,15 +415,25 @@ function handleCantChange(input){
     const container = row.querySelector(".pos-container");
     const cant = parseInt(input.value) || 0;
     container.innerHTML = "";
-    if ((item.includes("placa") || item.includes("martillo")) && cant > 0) {
+    if ((item.includes("placa") || item.includes("martillo") || item.includes("caperuza")) && cant > 0) {
         for (let i = 0; i < cant; i++) {
             const div = document.createElement("div");
             div.className = "pos-row";
+            
             const pos = document.createElement("input"); pos.type = "number"; pos.className = "pos-input"; pos.placeholder = "Pos";
+            
+            const eje = document.createElement("input"); eje.type = "number"; eje.className = "eje-input"; eje.placeholder = "Eje";
+            if (!(item.includes("martillo") || item.includes("caperuza"))) {
+                eje.style.display = "none";
+            }
+
             const prov = document.createElement("select");
             prov.className = "prov-input";
             prov.innerHTML = `<option value="">Fabricante...</option>` + proveedores.map(p => `<option>${p}</option>`).join("");
-            div.appendChild(pos); div.appendChild(prov);
+            
+            div.appendChild(pos); 
+            div.appendChild(eje);
+            div.appendChild(prov);
             container.appendChild(div);
         }
     }
@@ -493,7 +504,9 @@ async function enviarTodo(){
         .map(tr => ({
             item: tr.querySelector(".r-item").value, cant: tr.querySelector(".r-cant").value,
             detalles: Array.from(tr.querySelectorAll(".pos-row")).map(r => ({
-                pos: r.querySelector(".pos-input").value, prov: r.querySelector(".prov-input").value
+                pos: r.querySelector(".pos-input").value, 
+                eje: r.querySelector(".eje-input") ? r.querySelector(".eje-input").value : "",
+                prov: r.querySelector(".prov-input").value
             }))
         })).filter(r => r.item !== "");
         
