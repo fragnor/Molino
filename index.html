@@ -94,7 +94,6 @@
 <script>
 // ACTUALIZA ESTA URL SI CAMBIA
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxRflDXXW3SZWZtATgjeFP374OjJOEITfEbAa80N0VoWS1TpFM68xDtshC1oGEhO1bj/exec";
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyeBZn_mVfIIua5JZrh4w_ExLHfX0T_OgwoPjQGlmuOdm3jsCYjr48GmPNGbi12bNdR/exec";
 
 let activos = [], tareas = [], recambios = [], proveedores = [];
 let tiposExplosion = [], nivelesEstallido = [], nivelesFuego = [];
@@ -113,7 +112,7 @@ async function login() {
 
     try {
         const response = await fetch(SCRIPT_URL);
-
+        
         let data;
         try {
             data = await response.json();
@@ -144,7 +143,7 @@ async function login() {
             (user === 'jordi' && pass === 'jordi2') || 
             (user === 'qsma' && pass === 'QSMA2') || 
             (excelCreds[user] && excelCreds[user].toString() === pass)) {
-
+            
             currentUser = user;
             document.getElementById('login-page').classList.remove('active');
             document.getElementById('app').classList.add('active');
@@ -169,7 +168,7 @@ async function login() {
         document.getElementById('load-msg').style.display = "none";
     }
 }
-
+    
 function logout(){ location.reload(); }
 
 function switchTab(tabId){
@@ -420,9 +419,9 @@ function handleCantChange(input){
         for (let i = 0; i < cant; i++) {
             const div = document.createElement("div");
             div.className = "pos-row";
-
+            
             const pos = document.createElement("input"); pos.type = "number"; pos.className = "pos-input"; pos.placeholder = "Pos";
-
+            
             const eje = document.createElement("input"); eje.type = "number"; eje.className = "eje-input"; eje.placeholder = "Eje";
             if (!(item.includes("martillo") || item.includes("caperuza"))) {
                 eje.style.display = "none";
@@ -431,7 +430,7 @@ function handleCantChange(input){
             const prov = document.createElement("select");
             prov.className = "prov-input";
             prov.innerHTML = `<option value="">Fabricante...</option>` + proveedores.map(p => `<option>${p}</option>`).join("");
-
+            
             div.appendChild(pos); 
             div.appendChild(eje);
             div.appendChild(prov);
@@ -510,7 +509,7 @@ async function enviarTodo(){
                 prov: r.querySelector(".prov-input").value
             }))
         })).filter(r => r.item !== "");
-
+        
     if (recambiosValidos.length > 0) {
         payload.recambios = recambiosValidos;
         hayDatos = true;
@@ -635,7 +634,7 @@ function procesarDatosJordi(dataRows, finiD, ffinD) {
 function generarTablaJordi(agrupado) {
     let fechas = Object.keys(agrupado);
     if (fechas.length === 0) return "<div style='padding:10px; color:gray'>No hay datos de producción en este rango.</div>";
-
+    
     fechas.sort((a,b) => {
         let [da,ma,ya] = a.split("/"); let [db,mb,yb] = b.split("/");
         return new Date(`${yb}-${mb}-${db}`) - new Date(`${ya}-${ma}-${da}`);
@@ -688,16 +687,16 @@ async function cargarQSMAAuto() {
         const res = await fetch(SCRIPT_URL + "?action=getExplosiones");
         const dataRows = await res.json();
         if (!dataRows || dataRows.length === 0) { out.innerHTML = "<div style='color:gray'>No hay explosiones registradas.</div>"; return; }
-
+        
         let hoy = new Date();
         let hace3 = new Date();
         hace3.setDate(hoy.getDate() - 3); 
         hace3.setHours(0,0,0,0);
-
+        
         let html = `<table class="info-table" style="white-space:nowrap;"><thead><tr>
             <th>Fecha</th><th>Turno</th><th>Operario</th><th>Lote</th><th>Material</th><th>Origen</th><th>Tipo</th><th>Estallido</th><th>Fuego</th><th>Parada</th><th>Daños</th><th>Obs</th><th>Calif</th>
             </tr></thead><tbody>`;
-
+        
         let hayDatos = false;
         dataRows.forEach(r => {
             if (!r[0]) return;
@@ -721,31 +720,31 @@ async function generarReporteQSMA(){
     if (!fini || !ffin) return;
     out.innerHTML = "<div style='padding:20px; text-align:center; color:gray'>Consultando...</div>"; 
     document.getElementById("btnDownloadQSMA").style.display = "none";
-
+    
     try {
         const res = await fetch(SCRIPT_URL + "?action=getExplosiones");
         const dataRows = await res.json(); 
         reporteQSMAActual = [];
-
+        
         const finiD = new Date(fini); finiD.setHours(0,0,0,0);
         const ffinD = new Date(ffin); ffinD.setHours(23,59,59,999);
-
+        
         let html = `<table class="info-table" style="white-space:nowrap;"><thead><tr>
             <th>Fecha</th><th>Turno</th><th>Operario</th><th>Lote</th><th>Material</th><th>Origen</th><th>Tipo</th><th>Estallido</th><th>Fuego</th><th>Parada</th><th>Daños</th><th>Obs</th><th>Calif</th>
             </tr></thead><tbody>`;
-
+        
         dataRows.forEach(r => {
             if(!r[0]) return;
             const parts = r[0].split("/");
             if(parts.length !== 3) return;
             const d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T12:00:00`);
-
+            
             if (d >= finiD && d <= ffinD) { 
                 reporteQSMAActual.push(r); 
                 html += `<tr>${r.slice(0,13).map(c => `<td>${c}</td>`).join("")}</tr>`; 
             }
         });
-
+        
         if (reporteQSMAActual.length > 0) document.getElementById("btnDownloadQSMA").style.display = "inline-flex";
         html += "</tbody></table>";
         out.innerHTML = html;
@@ -787,7 +786,7 @@ async function generarReporte(){
     const out = document.getElementById("report-output");
     if (!fini || !ffin) return;
     out.innerHTML = "<div style='padding:20px; text-align:center; color:gray'>Consultando...</div>"; 
-
+    
     if(currentUser !== 'jordi') document.getElementById("btnDownload").style.display = "none";
     try {
         const res = await fetch(SCRIPT_URL + "?action=getReport");
@@ -801,14 +800,14 @@ async function generarReporte(){
             const finiD = new Date(fini);
             finiD.setHours(0,0,0,0);
             const ffinD = new Date(ffin); ffinD.setHours(23,59,59,999);
-
+            
             html = `<table style="min-width:900px;"><thead><tr><th>Fecha</th><th>Turno</th><th>Operario</th><th>Lote</th><th>H Mol F</th><th>H Prod F</th><th>Lectura</th><th>Prod Turno</th><th>Prod Neta</th></tr></thead><tbody>`;
             dataRows.forEach(r => {
                 if(!r[0]) return;
                 const parts = r[0].split("/");
                 if(parts.length !== 3) return;
                 const d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T12:00:00`);
-
+                
                 if (d >= finiD && d <= ffinD) { 
                     reporteActual.push(r); 
                     html += `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td><td>${r[6]}</td><td style="font-weight:bold">${r[7]}</td><td style="color:blue">${r[8]}</td></tr>`; 
