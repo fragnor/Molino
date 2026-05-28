@@ -93,7 +93,7 @@
 
 <script>
 // ACTUALIZA ESTA URL SI CAMBIA
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyeBZn_mVfIIua5JZrh4w_ExLHfX0T_OgwoPjQGlmuOdm3jsCYjr48GmPNGbi12bNdR/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7Alg-OIH07QZGmS_su6H8UmuWHwjE9XHGB5LBmFD0HOM3RgTsI0EyBMboi8gB59Qn/exec";
 
 let activos = [], tareas = [], recambios = [], proveedores = [];
 let tiposExplosion = [], nivelesEstallido = [], nivelesFuego = [];
@@ -142,6 +142,7 @@ async function login() {
         if ((user === 'admin' && pass === '1234') || 
             (user === 'jordi' && pass === 'jordi2') || 
             (user === 'qsma' && pass === 'QSMA2') || 
+            (user === 'mantenimiento' && pass === 'mantenimiento1') || 
             (excelCreds[user] && excelCreds[user].toString() === pass)) {
             
             currentUser = user;
@@ -151,6 +152,7 @@ async function login() {
             if (user === 'admin') renderAdmin();
             else if (user === 'jordi') renderJordi();
             else if (user === 'qsma') renderQSMA();
+            else if (user === 'mantenimiento') renderMantenimiento();
             else {
                 renderOperario(user);
                 cargarIncidenciasAnteriores(); 
@@ -629,7 +631,7 @@ function procesarDatosJordi(dataRows, finiD, ffinD) {
             let num = parseFloat(valNeto);
             if (isNaN(num)) num = 0;
             if (!agrupado[r[0]]) agrupado[r[0]] = 0;
-            agrupado[r[0]] += num;
+            grid = agrupado[r[0]] += num;
         }
     });
     return agrupado;
@@ -663,7 +665,6 @@ async function cargarJordiAuto() {
     } catch(e) { out.innerHTML = "<span style='color:var(--red)'>Error cargando el resumen automático.</span>"; }
 }
 
-// ---------------- PERFIL QSMA (NUEVO) ---------------- //
 function renderQSMA(){
     document.getElementById("user-tag").innerText = "🛡️ QSMA";
     document.getElementById("view").innerHTML = `
@@ -768,7 +769,56 @@ function descargarCSVQSMA(){
     const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Reporte_Explosiones_QSMA.csv";
     link.click();
 }
-// ---------------- FIN PERFIL QSMA ---------------- //
+
+// ---------------- PERFIL MANTENIMIENTO ---------------- //
+function renderMantenimiento(){
+    document.getElementById("user-tag").innerText = "🔧 MANTENIMIENTO";
+    document.getElementById("view").innerHTML = `
+        <div class="card" style="border-top:4px solid var(--blue);">
+            <div class="section-title">Descargar Gráficas Mensuales</div>
+            <div style="max-width: 400px;">
+                <label style="font-weight:bold; color:#64748b; margin-bottom:8px; display:block;">Selecciona el mes:</label>
+                <select id="mes-grafica" style="margin-bottom:20px;">
+                    <option value="Enero">Enero</option>
+                    <option value="Febrero">Febrero</option>
+                    <option value="Marzo">Marzo</option>
+                    <option value="Abril">Abril</option>
+                    <option value="Mayo">Mayo</option>
+                    <option value="Junio">Junio</option>
+                    <option value="Julio">Julio</option>
+                    <option value="Agosto">Agosto</option>
+                    <option value="Septiembre">Septiembre</option>
+                    <option value="Octubre">Octubre</option>
+                    <option value="Noviembre">Noviembre</option>
+                    <option value="Diciembre">Diciembre</option>
+                </select>
+                <button class="btn btn-blue" onclick="descargarGrafica()">DESCARGAR GRÁFICA</button>
+                <div id="msg-descarga" style="margin-top:15px; font-weight:bold; font-size:0.9em;"></div>
+            </div>
+        </div>
+    `;
+}
+
+async function descargarGrafica() {
+    const mes = document.getElementById("mes-grafica").value;
+    const msg = document.getElementById("msg-descarga");
+    msg.innerHTML = "<span style='color:var(--orange)'>Buscando pestaña 'Datos " + mes + "'... ⌛</span>";
+    
+    try {
+        const res = await fetch(SCRIPT_URL + "?action=getGrafica&mes=" + mes);
+        const data = await res.json();
+        
+        if (data.error) {
+            msg.innerHTML = `<span style='color:var(--red)'>❌ ${data.error}</span>`;
+        } else {
+            msg.innerHTML = `<span style='color:var(--green)'>✔ Descarga lista. Si no se abre, <a href="${data.url}" target="_blank">haz clic aquí</a>.</span>`;
+            window.location.href = data.url;
+        }
+    } catch(e) {
+        msg.innerHTML = `<span style='color:var(--red)'>❌ Error de red al intentar conectar.</span>`;
+    }
+}
+// ------------------------------------------------------ //
 
 async function addExt(acc, inp){
     const val = document.getElementById(inp).value; if (!val) return;
